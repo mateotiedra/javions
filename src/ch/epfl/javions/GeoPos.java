@@ -15,7 +15,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @throws IllegalArgumentException if the latitude is not valid.
      **/
     public GeoPos {
-        Preconditions.checkArgument(isValidLatitudeT32(longitudeT32));
+        Preconditions.checkArgument(isValidLatitudeT32(latitudeT32));
     }
 
     /**
@@ -25,7 +25,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @return true if the given value is a valid T32 latitude value.
      */
     public static boolean isValidLatitudeT32(int latitudeT32) {
-        return (latitudeT32 >= -1 << 30 && latitudeT32 <= 1 << 30);
+        return (latitudeT32 >= -(1 << 30)) && (latitudeT32 <= 1 << 30);
     }
 
     /**
