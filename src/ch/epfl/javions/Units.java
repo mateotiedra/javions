@@ -58,7 +58,7 @@ public final class Units {
      *
      * @param value    The value to be converted.
      * @param fromUnit The conversion ratio from the current unit to the base unit.
-     * @param toUnit   The conversion ratio from the target unit to the base unit.
+     * @param toUnit   The conversion ratio of the target unit to the base unit.
      * @return The converted value in the target unit.
      * @throws IllegalArgumentException if either fromUnit or toUnit is zero.
      **/
