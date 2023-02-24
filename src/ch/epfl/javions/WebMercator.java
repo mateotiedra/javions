@@ -1,8 +1,7 @@
 package ch.epfl.javions;
 
 /**
- * This class is used to convert coordinates from the WGS84 coordinate system to the Web Mercator
- * coordinate system.
+ * This class is used to project geographic coordinates according to the WebMercator projection.
  *
  * @author Kevan Lam (356395)
  * @author Mateo Tiedra (356525)
@@ -12,7 +11,7 @@ public class WebMercator {
     }
 
     /**
-     * Converts a longitude from the WGS84 coordinate system to the Web Mercator coordinate system.
+     * Project a longitude from the geographic coordinate system to the Web Mercator coordinate system.
      *
      * @param zoomLevel The zoom level of the map.
      * @param longitude The longitude to be converted.
@@ -23,7 +22,7 @@ public class WebMercator {
     }
 
     /**
-     * Converts a latitude from the WGS84 coordinate system to the Web Mercator coordinate system.
+     * Project a latitude from the geographic coordinate system to the Web Mercator coordinate system.
      *
      * @param zoomLevel The zoom level of the map.
      * @param latitude  The latitude to be converted.
