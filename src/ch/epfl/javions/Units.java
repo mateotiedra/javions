@@ -1,5 +1,11 @@
 package ch.epfl.javions;
 
+/**
+ * A utility class for unit conversions.
+ *
+ * @author Kevan Lam (356395)
+ * @author Mateo Tiedra (356525)
+ **/
 public final class Units {
     private Units() {
     }
@@ -47,15 +53,44 @@ public final class Units {
         public static final double KILOMETER_PER_HOUR = Length.KILOMETER / Time.HOUR;
     }
 
+    /**
+     * Converts a value from one unit to another unit using the conversion ratio.
+     *
+     * @param value    The value to be converted.
+     * @param fromUnit The conversion ratio from the current unit to the base unit.
+     * @param toUnit   The conversion ratio from the target unit to the base unit.
+     * @return The converted value in the target unit.
+     * @throws IllegalArgumentException if either fromUnit or toUnit is zero.
+     **/
     public static double convert(double value, double fromUnit, double toUnit) {
+        Preconditions.checkArgument(fromUnit != 0 && toUnit != 0);
         return value * (fromUnit / toUnit);
     }
 
+
+    /**
+     * Converts a value from one unit to its base unit.
+     *
+     * @param value    The value to be converted.
+     * @param fromUnit The conversion ratio from the current unit to the base unit.
+     * @return The converted value in the base unit.
+     * @throws IllegalArgumentException if fromUnit is zero.
+     **/
     public static double convertFrom(double value, double fromUnit) {
+        Preconditions.checkArgument(fromUnit != 0);
         return convert(value, fromUnit, 1);
     }
 
+    /**
+     * Converts a value from its base unit to another unit.
+     *
+     * @param value  The value to be converted.
+     * @param toUnit The conversion ratio from the target unit to the base unit.
+     * @return The converted value in the target unit.
+     * @throws IllegalArgumentException if toUnit is zero.
+     **/
     public static double convertTo(double value, double toUnit) {
+        Preconditions.checkArgument(toUnit != 0);
         return convert(value, 1, toUnit);
     }
 }
