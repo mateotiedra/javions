@@ -1,5 +1,6 @@
 package ch.epfl.javions;
 
+import java.util.Arrays;
 import java.util.HexFormat;
 
 import static java.util.Objects.checkFromToIndex;
@@ -25,7 +26,7 @@ public class ByteString {
      * @throws IllegalArgumentException if the given string is not a valid
      *                                  hexadecimal string of if the given string is empty
      */
-    public ByteString ofHexadecimalString(String hexString) {
+    public static ByteString ofHexadecimalString(String hexString) {
         Preconditions.checkArgument(hexString != null && hexString.length() > 0 && hexString.length() % 2 == 0);
 
         String regex = "^(0x|0X)?[0-9a-fA-F]+$";
@@ -89,11 +90,10 @@ public class ByteString {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        ByteString that = (ByteString) o;
-
-        return java.util.Arrays.equals(bytes, that.bytes);
+        if (o instanceof ByteString that)
+            return Arrays.equals(bytes, that.bytes);
+        else return false;
     }
 
     @Override

@@ -29,7 +29,8 @@ public class Bits {
      *                                   negative or greater than Long.SIZE.
      */
     public static int extractUInt(long value, int start, int size) {
-        checkIndex(start, Integer.SIZE);
+        Preconditions.checkArgument(size > 0 && size < 32);
+        checkIndex(start, Long.SIZE);
         checkFromIndexSize(start, size, Long.SIZE);
 
         return (int) ((value >>> start) & (1L << size) - 1);
