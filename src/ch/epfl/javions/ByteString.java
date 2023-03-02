@@ -27,10 +27,10 @@ public class ByteString {
      *                                  hexadecimal string of if the given string is empty
      */
     public static ByteString ofHexadecimalString(String hexString) {
-        Preconditions.checkArgument(hexString != null && hexString.length() > 0 && hexString.length() % 2 == 0);
 
         String regex = "^(0x|0X)?[0-9a-fA-F]+$";
-        Preconditions.checkArgument(hexString.matches(regex));
+        if (hexString == null || hexString.length() == 0 || hexString.length() % 2 != 0 || !hexString.matches(regex))
+            throw new NumberFormatException();
 
         HexFormat hf = HexFormat.of().withUpperCase();
         return new ByteString(hf.parseHex(hexString));
@@ -47,8 +47,8 @@ public class ByteString {
 
     /**
      * Returns the byte value at the specified index.
+     * * @param index the index of the byte to return
      *
-     * @param index the index of the byte to return
      * @return the byte value at the specified index
      * @throws IndexOutOfBoundsException if the index is negative or greater than
      *                                   or equal to the size of this ByteString
@@ -57,7 +57,7 @@ public class ByteString {
         if (index < 0 || index >= bytes.length)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
 
-        return bytes[index];
+        return (bytes[index] & 0b11111111);
     }
 
     /**
