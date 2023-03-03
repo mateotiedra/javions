@@ -6,10 +6,15 @@ import java.util.Objects;
 import java.util.zip.ZipFile;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-
-public final class AircraftDataBase {
+/**
+ * Represents a database of aircraft data, which can be quiered by using the ICAO address.
+ * @author Kevan Lam (356395)
+ * @author Mateo Tiedra (356525)
+ *
+ **/
+public final class AircraftDatabase {
     private String fileName;
-    public AircraftDataBase(String fileName){
+    public AircraftDatabase(String fileName){
         this.fileName = Objects.requireNonNull(fileName);
     }
 

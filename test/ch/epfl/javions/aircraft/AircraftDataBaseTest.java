@@ -10,7 +10,7 @@ public class AircraftDataBaseTest {
     // Test case 1: IcaoAddress exists in the zip file
     @Test
     void aircraftDataBaseWorksWithCorrectString() throws IOException {
-        AircraftDataBase database = new AircraftDataBase("/aircraft.zip");
+        AircraftDatabase database = new AircraftDatabase("/aircraft.zip");
         IcaoAddress address1 = new IcaoAddress("CP-3080");
         AircraftData expected1 = new AircraftData(new AircraftRegistration("CP-3080"), new AircraftTypeDesignator("C208"), "CESSNA 208 Caravan", new AircraftDescription("L1T"), WakeTurbulenceCategory.LIGHT);
         AircraftData actual1 = database.get(address1);
