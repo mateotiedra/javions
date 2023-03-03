@@ -32,6 +32,7 @@ public class Crc24Test {
                 new AdsbMessageExample("8D4B17E399893E15C09C21", "9FC014"),
                 new AdsbMessageExample("8D4B18F4231445F2DB63A0", "DEEB82"),
                 new AdsbMessageExample("8D495293F82300020049B8", "111203"),
+                new AdsbMessageExample("", "000000"),
         };
 
         for (AdsbMessageExample adsbMessageExample : adsbMessageExamples) {
