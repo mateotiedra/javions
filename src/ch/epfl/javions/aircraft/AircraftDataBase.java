@@ -14,7 +14,7 @@ public final class AircraftDataBase {
     }
 
     public AircraftData get(IcaoAddress address) throws IOException {
-        String filepath = getClass().getResource("/aircraft.zip").getFile();
+        String filepath = getClass().getResource(fileName).getFile();
         filepath = URLDecoder.decode(filepath, UTF_8);
         for(int i = 1; i <= 256; i++){
             String filename = i + ".csv";
