@@ -6,7 +6,6 @@ import java.util.regex.Pattern;
 /**
  * Represents the ICAO address (international civil aviation organization) of an aircraft.(unique number for each aircraft)
  * @author Kevan Lam (356395)
- * @author Mateo Tiedra (356525)
  * @param string
  */
 public record IcaoAddress(String string){

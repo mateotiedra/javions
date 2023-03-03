@@ -2,7 +2,6 @@ package ch.epfl.javions.aircraft;
 /**
  * This enum represents the wake turbulence category of an aircraft. (ps UNKNOWN for like a baloon)
  * @author Kevan Lam (356395)
- * @author Mateo Tiedra (356525)
  *
  */
 public enum WakeTurbulenceCategory {
