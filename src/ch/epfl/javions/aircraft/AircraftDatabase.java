@@ -1,7 +1,6 @@
 package ch.epfl.javions.aircraft;
 
 import java.io.*;
-import java.net.URLDecoder;
 import java.util.Objects;
 import java.util.zip.ZipFile;
 
@@ -27,10 +26,8 @@ public final class AircraftDatabase {
      * @throws IOException if an I/O error occurs
      */
     public AircraftData get(IcaoAddress address) throws IOException {
-        String filepath = getClass().getResource(fileName).getFile();
-        filepath = URLDecoder.decode(filepath, UTF_8);
         String filename = address.string().substring(4, 6) + ".csv";
-        try (ZipFile zipFile = new ZipFile(filepath);
+        try (ZipFile zipFile = new ZipFile(fileName);
              InputStream s = zipFile.getInputStream(zipFile.getEntry(filename));
              Reader r = new InputStreamReader(s, UTF_8);
              BufferedReader b = new BufferedReader(r)) {
