@@ -1,3 +1,4 @@
+/*
 package ch.epfl.sigcheck;
 
 // Attention : cette classe n'est *pas* un test JUnit, et son code n'est
@@ -38,3 +39,4 @@ final class SignatureChecks_3 {
     boolean v08;
     long v09;
 }
+*/
