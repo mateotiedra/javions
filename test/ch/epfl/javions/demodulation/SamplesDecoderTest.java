@@ -6,7 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SamplesDecoderTest {
 
@@ -20,6 +20,50 @@ public class SamplesDecoderTest {
         String url = getClass().getResource("/samples.bin").getFile();
         try (InputStream stream = new FileInputStream(url)) {
             assertThrows(IllegalArgumentException.class, () -> new SamplesDecoder(stream, 0));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void readBatchWorksNotCorrespondingBatchSize() {
+        String url = getClass().getResource("/samples.bin").getFile();
+        try (InputStream stream = new FileInputStream(url)) {
+            SamplesDecoder samplesDecoder = new SamplesDecoder(stream, 1200);
+            assertThrows(IllegalArgumentException.class, () -> samplesDecoder.readBatch(new short[1201]));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void readBatchReturnsCorrectNumberOfSampleRead() {
+        String url = getClass().getResource("/samples.bin").getFile();
+        try (InputStream stream = new FileInputStream(url)) {
+            SamplesDecoder samplesDecoder = new SamplesDecoder(stream, 1200);
+            short[] batch = new short[1200];
+
+            // Because the samples.bin file contains 4804 bytes
+            assertEquals(1200, samplesDecoder.readBatch(batch));
+            assertEquals(1200, samplesDecoder.readBatch(batch));
+            assertEquals(2, samplesDecoder.readBatch(batch));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    void readBatchReadsCorrectlyTheFirst10Sample() {
+        String url = getClass().getResource("/samples.bin").getFile();
+        try (InputStream stream = new FileInputStream(url)) {
+            SamplesDecoder samplesDecoder = new SamplesDecoder(stream, 1200);
+            short[] batch = new short[1200];
+            samplesDecoder.readBatch(batch);
+            short[] expectedValues = {-3, 8, -9, -8, -5, -8, -12, -16, -23, -9};
+
+            for (int i = 0; i < expectedValues.length; i++) {
+                assertEquals(expectedValues[i], batch[i]);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
