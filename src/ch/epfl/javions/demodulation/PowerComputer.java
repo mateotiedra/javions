@@ -7,8 +7,8 @@ import java.io.InputStream;
 
 /**
  * This class is used to compute the power of the radio sample.
- * <p>
- * author: Mateo Tiedra (356525)
+ *
+ * @author Mateo Tiedra (356525)
  */
 public final class PowerComputer {
     private final short[] samples;
@@ -52,7 +52,7 @@ public final class PowerComputer {
     }
 
     /**
-     * This method computes the power of the samples.
+     * This method computes the power of the samples using the formula given.
      *
      * @param lhs   the last height radio samples
      * @param lotli the index of the last of the last height radio sample
