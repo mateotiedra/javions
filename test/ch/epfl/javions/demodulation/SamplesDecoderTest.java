@@ -2,6 +2,7 @@ package ch.epfl.javions.demodulation;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -66,6 +67,40 @@ public class SamplesDecoderTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    void testReadBatch() throws Exception {
+        InputStream stream = new ByteArrayInputStream(new byte[]{0x00, 0x00, (byte) 0xff, (byte) 0xff});
+        SamplesDecoder decoder = new SamplesDecoder(stream, 2);
+        short[] batch = new short[2];
+        int bytesRead = decoder.readBatch(batch);
+        assertEquals(2, bytesRead);
+        assertEquals(-2048, batch[0]);
+        assertEquals(2047, batch[1]);
+    }
+
+    @Test
+    void testConstructorThrowsExceptionForNegativeBatchSize() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            InputStream stream = new ByteArrayInputStream(new byte[]{});
+            new SamplesDecoder(stream, -1);
+        });
+    }
+
+    @Test
+    void testConstructorThrowsExceptionForNullInputStream() {
+        assertThrows(NullPointerException.class, () -> new SamplesDecoder(null, 2));
+    }
+
+    @Test
+    void testReadBatchThrowsExceptionForMismatchedBatchSize() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            InputStream stream = new ByteArrayInputStream(new byte[]{});
+            SamplesDecoder decoder = new SamplesDecoder(stream, 2);
+            short[] batch = new short[3];
+            decoder.readBatch(batch);
+        });
     }
 
 }

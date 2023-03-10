@@ -8,7 +8,6 @@ import java.util.Objects;
 
 public final class SamplesDecoder {
     private final InputStream stream;
-
     private final int batchSize;
     private final byte[] samplesTable;
 
@@ -28,7 +27,7 @@ public final class SamplesDecoder {
             int msb = Byte.toUnsignedInt(samplesTable[i + 1]) << 8;
             int lsb = Byte.toUnsignedInt(samplesTable[i]);
 
-            batch[i / 2] = (short) ((msb | lsb) - Math.scalb(1, 11));
+            batch[i / 2] = (short) (((msb | lsb) & 0x0FFF) - 2048);
         }
 
         return bytesRead / 2;
