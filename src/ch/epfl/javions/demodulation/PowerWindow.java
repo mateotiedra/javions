@@ -33,7 +33,7 @@ public final class PowerWindow {
         return position;
     }
     public boolean isFull(){
-        return position + windowSize > batch;
+        return position + windowSize <= batch;
     }
     public int get(int i){
         if(i < 0 || i >= windowSize){throw new IndexOutOfBoundsException("Index invalide :" + i);}

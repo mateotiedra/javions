@@ -18,7 +18,7 @@ class PowerWindowTest {
         PowerWindow window = new PowerWindow(sampleStream, 6);
         assertEquals(6, window.size());
         assertEquals(73, window.get(0));
-        assertThrows(IllegalArgumentException.class, () -> window.get(7));
+        assertThrows(IndexOutOfBoundsException.class, () -> window.get(7));
         window.advance();
         assertEquals(292, window.get(0));
         window.advanceBy(3);
