@@ -39,16 +39,15 @@ public class SamplesDecoderTest {
     @Test
     void readBatchReturnsCorrectNumberOfSampleRead() {
         String url = getClass().getResource("/samples.bin").getFile();
-        try (InputStream stream = new FileInputStream(url)) {
-            SamplesDecoder samplesDecoder = new SamplesDecoder(stream, 1200);
-            short[] batch = new short[1200];
+        for (int batchSize : new int[]{3000, 2402, 1200}) {
+            try (InputStream stream = new FileInputStream(url)) {
+                SamplesDecoder samplesDecoderWithBigArray = new SamplesDecoder(stream, batchSize);
+                short[] batch = new short[batchSize];
+                assertEquals(Math.min(2402, batchSize), samplesDecoderWithBigArray.readBatch(batch));
 
-            // Because the samples.bin file contains 4804 bytes
-            assertEquals(1200, samplesDecoder.readBatch(batch));
-            assertEquals(1200, samplesDecoder.readBatch(batch));
-            assertEquals(2, samplesDecoder.readBatch(batch));
-        } catch (IOException e) {
-            e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
