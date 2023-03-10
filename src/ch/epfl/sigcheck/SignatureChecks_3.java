@@ -6,7 +6,8 @@ package ch.epfl.sigcheck;
 // pour cette étape du projet sont corrects.
 
 final class SignatureChecks_3 {
-    private SignatureChecks_3() {}
+    private SignatureChecks_3() {
+    }
 
     void checkSamplesDecoder() throws Exception {
         v01 = new ch.epfl.javions.demodulation.SamplesDecoder(v02, v03);
