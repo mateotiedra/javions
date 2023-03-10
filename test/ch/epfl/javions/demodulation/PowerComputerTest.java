@@ -85,4 +85,27 @@ public class PowerComputerTest {
             e.printStackTrace();
         }
     }
+
+    @Test
+    void readBatchReadsCorrectlyTheFirst10SampleButSeparately() {
+        String url = getClass().getResource("/samples.bin").getFile();
+        try (InputStream stream = new FileInputStream(url)) {
+            PowerComputer powerComputer = new PowerComputer(stream, 8);
+            int[] batch = new int[8];
+
+            int[] firstHeightExpectedValues = {73, 292, 65, 745, 98, 4226, 12244, 25722};
+            powerComputer.readBatch(batch);
+            for (int i = 0; i < firstHeightExpectedValues.length; i++) {
+                assertEquals(firstHeightExpectedValues[i], batch[i]);
+            }
+
+            int[] batchWithLastTwoValues = new int[]{36818, 23825};
+            powerComputer.readBatch(batch);
+            for (int i = 0; i < batchWithLastTwoValues.length; i++) {
+                assertEquals(batchWithLastTwoValues[i], batch[i]);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

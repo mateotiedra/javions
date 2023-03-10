@@ -42,7 +42,7 @@ public final class PowerComputer {
         Preconditions.checkArgument(batch.length == batchSize);
         int nbrOfSamplesRead = samplesDecoder.readBatch(samples);
 
-        for (int i = 0; i < nbrOfSamplesRead / 2; i += 2) {
+        for (int i = 0; i < nbrOfSamplesRead; i += 2) {
             int lastOfTheLastHeightIndex = i % 8;
             lastHeightSamples[lastOfTheLastHeightIndex] = samples[i];
             lastHeightSamples[lastOfTheLastHeightIndex + 1] = samples[i + 1];
