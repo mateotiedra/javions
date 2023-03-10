@@ -37,12 +37,20 @@ public final class PowerWindow {
     }
     public int get(int i){
         if(i < 0 || i >= windowSize){throw new IndexOutOfBoundsException("Index invalide :" + i);}
+
         if ((position % batchsize + i) > batchsize){
             return batchB[(int)(position % batchsize + i - batchsize)];
-        }else{
+        }else if((position % batchsize + i) < batchsize){
             return batchA[(int)(position % batchsize + i)];
         }
+        return 0;
     }
+    /**
+     * This method reads a batch of samples and computes the power of the samples.
+     *
+     * @return the number of power samples written in the batch
+     * @throws IOException if an I/O error occurs
+     */
     public void advance() throws IOException{
         position++;
         if((position % batchsize)+windowSize >= batchsize && !ArrayB){
@@ -54,6 +62,7 @@ public final class PowerWindow {
             ArrayB = false;
         }
     }
+    // Advance by offset
     public void advanceBy(int offset) throws IOException{
         Preconditions.checkArgument(offset >= 0);
         while(offset>0){
