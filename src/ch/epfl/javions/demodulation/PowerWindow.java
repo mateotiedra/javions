@@ -18,6 +18,12 @@ public final class PowerWindow {
     private long position = 0;
     private int[] batchA = new int[batchsize];
     private int[] batchB = new int[batchsize];
+    /**
+     * Constructor of the PowerWindow
+     *
+     * @param stream    the stream of the samples
+     * @param windowSize the size of the batch
+     */
     public PowerWindow(InputStream stream, int windowSize) throws IOException{
         Preconditions.checkArgument(windowSize > 0 && windowSize<= batchsize);
         this.powerComputer = new PowerComputer(stream,batchsize);
@@ -35,15 +41,20 @@ public final class PowerWindow {
     public boolean isFull(){
         return position + windowSize <= batch;
     }
+    /**
+     * This method reads a batch of samples and computes the power of the samples.
+     *
+     * @return the number of power samples written in the batch
+     * @throws IOException if an I/O error occurs
+     */
     public int get(int i){
         if(i < 0 || i >= windowSize){throw new IndexOutOfBoundsException("Index invalide :" + i);}
 
         if ((position % batchsize + i) > batchsize){
             return batchB[(int)(position % batchsize + i - batchsize)];
-        }else if((position % batchsize + i) < batchsize){
+        }else{
             return batchA[(int)(position % batchsize + i)];
         }
-        return 0;
     }
     /**
      * This method reads a batch of samples and computes the power of the samples.
@@ -56,8 +67,7 @@ public final class PowerWindow {
         if((position % batchsize)+windowSize >= batchsize && !ArrayB){
             batch += powerComputer.readBatch(batchB);
             ArrayB = true;
-        }
-        if(position % batchsize == 0 && position!=0){
+        }else if(position % batchsize == 0 && position!=0){
             System.arraycopy(batchB,0,batchA,0,batchsize);
             ArrayB = false;
         }
