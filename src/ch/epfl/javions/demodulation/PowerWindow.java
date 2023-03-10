@@ -45,7 +45,7 @@ public final class PowerWindow {
      * This method reads a batch of samples and computes the power of the samples.
      *
      * @return the number of power samples written in the batch
-     * @throws IOException if an I/O error occurs
+     * @throws IndexOutOfBoundsException if an I/O error occurs
      */
     public int get(int i){
         if(i < 0 || i >= windowSize){throw new IndexOutOfBoundsException("Index invalide :" + i);}
@@ -59,7 +59,6 @@ public final class PowerWindow {
     /**
      * This method reads a batch of samples and computes the power of the samples.
      *
-     * @return the number of power samples written in the batch
      * @throws IOException if an I/O error occurs
      */
     public void advance() throws IOException{
