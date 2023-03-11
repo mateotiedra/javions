@@ -47,8 +47,8 @@ public class ByteString {
 
     /**
      * Returns the byte value at the specified index.
-     * * @param index the index of the byte to return
      *
+     * @param index the index of the byte to return
      * @return the byte value at the specified index
      * @throws IndexOutOfBoundsException if the index is negative or greater than
      *                                   or equal to the size of this ByteString
