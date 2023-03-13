@@ -1,4 +1,3 @@
-/*
 package ch.epfl.sigcheck;
 
 // Attention : cette classe n'est *pas* un test JUnit, et son code n'est
@@ -7,7 +6,8 @@ package ch.epfl.sigcheck;
 // pour cette étape du projet sont corrects.
 
 final class SignatureChecks_3 {
-    private SignatureChecks_3() {}
+    private SignatureChecks_3() {
+    }
 
     void checkSamplesDecoder() throws Exception {
         v01 = new ch.epfl.javions.demodulation.SamplesDecoder(v02, v03);
@@ -39,4 +39,3 @@ final class SignatureChecks_3 {
     boolean v08;
     long v09;
 }
-*/
