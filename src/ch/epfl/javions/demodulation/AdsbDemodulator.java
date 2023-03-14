@@ -1,6 +1,5 @@
 package ch.epfl.javions.demodulation;
 
-import ch.epfl.javions.ByteString;
 import ch.epfl.javions.adsb.RawMessage;
 
 import java.io.IOException;
@@ -28,24 +27,23 @@ public final class AdsbDemodulator {
         int lastSp;
         int sp = computeSp(window);
         int nextSp = computeSp(window, 1);
-        int sv;
 
-        RawMessage nextMessage = null;
+        RawMessage nextMessage;
 
         do {
             do {
+                window.advance();
                 lastSp = sp;
                 sp = nextSp;
                 nextSp = computeSp(window, 1);
 
-                window.advance();
                 if (!window.isFull())
                     return null;
+
             } while (!(sp > lastSp && sp > nextSp && sp >= 2 * computeSv(window)));
 
-            ByteString bytes = new ByteString(extractMessageBytes(window));
-            nextMessage = new RawMessage(window.position() * 100, bytes);
-        } while (nextMessage.downLinkFormat() != 17);
+            nextMessage = RawMessage.of(window.position() * 100, extractMessageBytes(window));
+        } while (!(nextMessage != null && nextMessage.downLinkFormat() == 17));
 
         return nextMessage;
     }
@@ -58,14 +56,16 @@ public final class AdsbDemodulator {
      */
     private static byte[] extractMessageBytes(PowerWindow window) {
         byte[] messageBytes = new byte[RawMessage.LENGTH];
+        int newByte;
+
         for (int i = 0; i < RawMessage.LENGTH; i++) {
-            byte newByte = 0;
+            newByte = 0;
             for (int j = 0; j < Byte.SIZE; j++) {
                 int bitIndex = i * 8 + j;
-                int bit = window.get(80 + 10 * bitIndex) > window.get(85 + 10 * bitIndex) ? 1 : 0;
-                newByte |= bit << j;
+                int bit = window.get(80 + 10 * bitIndex) < window.get(85 + 10 * bitIndex) ? 0 : 1;
+                newByte = newByte | (bit << (7 - j));
             }
-            messageBytes[i] = newByte;
+            messageBytes[i] = (byte) (newByte);
         }
 
         return messageBytes;
