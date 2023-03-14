@@ -64,7 +64,7 @@ public class ByteString {
      * Extracts a long value from a byte array.
      *
      * @param fromIndex the index of the first byte to extract
-     * @param toIndex   the index of the last byte to extract
+     * @param toIndex   the index of the last byte to extract (exclusive)
      * @return the long value extracted from the byte array
      * @throws IndexOutOfBoundsException if the indices are out of bounds
      * @throws IllegalArgumentException  if the indices are not in ascending order
