@@ -6,11 +6,20 @@ import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 
 class PowerWindowTest {
+    private static final int BATCH_SIZE = 1 << 16;
+    private static final int BATCH_SIZE_BYTES = bytesForPowerSamples(BATCH_SIZE);
+    private static final int STANDARD_WINDOW_SIZE = 1200;
+    private static final int BIAS = 1 << 11;
+
+    private static int bytesForPowerSamples(int powerSamplesCount) {
+        return powerSamplesCount * 2 * Short.BYTES;
+    }
     @Test
     public void windowOK() throws IOException {
         String fileName = (getClass().getResource("/samples.bin")).getFile();
@@ -45,6 +54,31 @@ class PowerWindowTest {
         assertFalse(window1.isFull());
     }
 
+    @Test
+    void powerWindowGetWorksAcrossBatches() throws IOException {
+        byte[] bytes = bytesForZeroSamples(2);
+        var firstBatchSamples = STANDARD_WINDOW_SIZE / 2 - 13;
+        var offset = BATCH_SIZE_BYTES - bytesForPowerSamples(firstBatchSamples);
+        var sampleBytes = Base64.getDecoder().decode(PowerComputerTest.SAMPLES_BIN_BASE64);
+        System.arraycopy(sampleBytes, 0, bytes, offset, sampleBytes.length);
+        try (var s = new ByteArrayInputStream(bytes)) {
+            var w = new PowerWindow(s, STANDARD_WINDOW_SIZE);
+            w.advanceBy(BATCH_SIZE - firstBatchSamples);
+            for (int i = 0; i < STANDARD_WINDOW_SIZE; i += 1)
+                assertEquals(PowerComputerTest.POWER_SAMPLES[i], w.get(i));
+        }
+    }
+    private static byte[] bytesForZeroSamples(int batchesCount) {
+        var bytes = new byte[BATCH_SIZE_BYTES * batchesCount];
+
+        var msbBias = BIAS >> Byte.SIZE;
+        var lsbBias = BIAS & ((1 << Byte.SIZE) - 1);
+        for (var i = 0; i < bytes.length; i += 2) {
+            bytes[i] = (byte) lsbBias;
+            bytes[i + 1] = (byte) msbBias;
+        }
+        return bytes;
+    }
     @Test
     public void constructorThrowsExceptionWithIncorrectWindowSize() throws IOException {
         String fileName = (getClass().getResource("/samples.bin")).getFile();
