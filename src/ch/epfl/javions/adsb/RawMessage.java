@@ -16,7 +16,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     public static final int LENGTH = 14;
 
     public RawMessage {
-        Preconditions.checkArgument(timeStampNs < 0 && bytes.size() == LENGTH);
+        Preconditions.checkArgument(timeStampNs >= 0 && bytes.size() == LENGTH);
     }
 
     /**
@@ -51,7 +51,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the type code extracted from the payload
      */
     public static int typeCode(long payload) {
-        return (int) (payload >>> 51);
+        return (int) ((payload >>> 51) & 0b11111);
     }
 
     /**
@@ -69,7 +69,8 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the ICAO address of the message
      */
     public IcaoAddress icaoAddress() {
-        return new IcaoAddress(Long.toHexString((bytes.bytesInRange(1, 3))).substring(9, 15));
+        String hexString = Long.toHexString(bytes.bytesInRange(1, 4)).toUpperCase();
+        return new IcaoAddress(hexString);
     }
 
     /**
@@ -78,7 +79,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the ME attribute of the message
      */
     public long payload() {
-        return bytes.bytesInRange(4, 10);
+        return bytes.bytesInRange(4, 11);
     }
 
     /**
