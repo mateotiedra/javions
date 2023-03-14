@@ -7,6 +7,8 @@ package ch.epfl.javions;
  */
 final public class Crc24 {
     public static final int GENERATOR = 0xFFF409;
+
+    private static final int[] DEFAULT_BUILD_TABLE = buildTable(GENERATOR);
     private static final int CRC_LENGTH = 24;
     private final int[] buildTable;
 
@@ -16,7 +18,7 @@ final public class Crc24 {
      * @param generator the generator used to calculate the CRC values
      */
     public Crc24(int generator) {
-        this.buildTable = buildTable(generator);
+        this.buildTable = generator == GENERATOR ? DEFAULT_BUILD_TABLE : buildTable(generator);
     }
 
     /**
@@ -52,12 +54,12 @@ final public class Crc24 {
         for (byte octets : bytes) {
             for (int i = 0; i < 8; ++i) {
                 short bit = (short) ((octets >> (7 - i)) & 1);
-                crc = ((crc << 1) | bit) ^ table[getNthBit(crc, CRC_LENGTH - 1)];
+                crc = ((crc << 1) | bit) ^ table[getNthBit(crc)];
             }
         }
 
         for (int i = 0; i < CRC_LENGTH; ++i) {
-            crc = (crc << 1) ^ table[getNthBit(crc, CRC_LENGTH - 1)];
+            crc = (crc << 1) ^ table[getNthBit(crc)];
         }
 
         return filterNLeastSignificantBits(crc, CRC_LENGTH);
@@ -81,11 +83,10 @@ final public class Crc24 {
      * This method returns the nth bit of a value.
      *
      * @param value the value
-     * @param index the index of the bit
      * @return the nth bit of the value
      */
-    private static int getNthBit(int value, int index) {
-        return Bits.testBit(value, index) ? 1 : 0;
+    private static int getNthBit(int value) {
+        return Bits.testBit(value, CRC_LENGTH - 1) ? 1 : 0;
     }
 
     /**
