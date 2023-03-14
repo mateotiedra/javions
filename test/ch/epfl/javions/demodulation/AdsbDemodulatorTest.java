@@ -62,7 +62,7 @@ public class AdsbDemodulatorTest {
             double start = System.currentTimeMillis() / 1000.0;
 
             while ((m = d.nextMessage()) != null) {
-                System.out.println("Message %d : %s".formatted(++messageCounter, m));
+                //System.out.println("Message %d : %s".formatted(++messageCounter, m));
             }
 
             double end = System.currentTimeMillis() / 1000.0;

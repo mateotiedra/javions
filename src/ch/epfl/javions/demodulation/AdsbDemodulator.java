@@ -12,6 +12,7 @@ import java.io.InputStream;
  */
 public final class AdsbDemodulator {
     private final PowerWindow window;
+    private static final int[] MULTIPLE_OF_10 = initMultipleOf10(120);
 
     AdsbDemodulator(InputStream samplesStream) throws IOException {
         window = new PowerWindow(samplesStream, 1200);
@@ -45,6 +46,8 @@ public final class AdsbDemodulator {
             nextMessage = RawMessage.of(window.position() * 100, extractMessageBytes(window));
         } while (!(nextMessage != null && nextMessage.downLinkFormat() == 17));
 
+        window.advanceBy(1200);
+
         return nextMessage;
     }
 
@@ -57,12 +60,13 @@ public final class AdsbDemodulator {
     private static byte[] extractMessageBytes(PowerWindow window) {
         byte[] messageBytes = new byte[RawMessage.LENGTH];
         int newByte;
+        int sampleIndex;
 
-        for (int i = 0; i < RawMessage.LENGTH; i++) {
+        for (int i = 0; i < RawMessage.LENGTH; ++i) {
             newByte = 0;
-            for (int j = 0; j < Byte.SIZE; j++) {
-                int bitIndex = i * 8 + j;
-                int bit = window.get(80 + 10 * bitIndex) < window.get(85 + 10 * bitIndex) ? 0 : 1;
+            for (int j = 0; j < Byte.SIZE; ++j) {
+                sampleIndex = MULTIPLE_OF_10[(i << 3) + j];
+                int bit = window.get(80 + sampleIndex) < window.get(85 + sampleIndex) ? 0 : 1;
                 newByte = newByte | (bit << (7 - j));
             }
             messageBytes[i] = (byte) (newByte);
@@ -89,7 +93,7 @@ public final class AdsbDemodulator {
      * @return the sum of the power of the samples in the window
      */
     private static int computeSp(PowerWindow window) {
-        return computeSp(window, 0);
+        return window.get(0) + window.get(10) + window.get(35) + window.get(45);
     }
 
     /**
@@ -100,5 +104,14 @@ public final class AdsbDemodulator {
      */
     private static int computeSv(PowerWindow window) {
         return window.get(5) + window.get(15) + window.get(20) + window.get(25) + window.get(30) + window.get(40);
+    }
+
+    private static int[] initMultipleOf10(int nbrOfMultiple) {
+        int[] table = new int[nbrOfMultiple];
+        for (int i = 0; i < nbrOfMultiple; ++i) {
+            table[i] = i * 10;
+        }
+
+        return table;
     }
 }
