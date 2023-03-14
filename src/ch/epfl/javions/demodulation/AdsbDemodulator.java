@@ -14,7 +14,7 @@ public final class AdsbDemodulator {
     private final PowerWindow window;
     private static final int[] MULTIPLE_OF_10 = initMultipleOf10(120);
 
-    AdsbDemodulator(InputStream samplesStream) throws IOException {
+    public AdsbDemodulator(InputStream samplesStream) throws IOException {
         window = new PowerWindow(samplesStream, 1200);
     }
 
