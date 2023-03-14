@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AdsbDemodulatorTest {
     @Test
@@ -33,6 +34,43 @@ public class AdsbDemodulatorTest {
             /*while ((m = d.nextMessage()) != null)
                 System.out.println(m);*/
         }
+    }
+
+    @Test
+    void readCorrectNumberOfMessageInSample() throws IOException {
+        String url = getClass().getResource("/samples_20230304_1442.bin").getFile();
+        try (InputStream s = new FileInputStream(url)) {
+            AdsbDemodulator d = new AdsbDemodulator(s);
+            RawMessage m;
+            int messageCounter = 0;
+
+            while ((m = d.nextMessage()) != null) {
+                ++messageCounter;
+            }
+            assertEquals(384, messageCounter);
+        }
+    }
+
+    @Test
+    void readMessageFastEnough() throws IOException {
+        String url = getClass().getResource("/samples_20230304_1442.bin").getFile();
+        try (InputStream s = new FileInputStream(url)) {
+            AdsbDemodulator d = new AdsbDemodulator(s);
+            RawMessage m;
+            int messageCounter = 0;
+
+            double start = System.currentTimeMillis() / 1000.0;
+
+            while ((m = d.nextMessage()) != null) {
+                System.out.println("Message %d : %s".formatted(++messageCounter, m));
+            }
+
+            double end = System.currentTimeMillis() / 1000.0;
+            System.out.println("Executed in %.3f seconds".formatted(end - start));
+
+            assertTrue(end - start < 7.5);
+        }
+
     }
 
 }
