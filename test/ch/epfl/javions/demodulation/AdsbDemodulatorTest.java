@@ -27,7 +27,7 @@ public class AdsbDemodulatorTest {
 
             for (int i = 0; i < 5; i++) {
                 m = d.nextMessage();
-                System.out.println(m.downLinkFormat());
+                //System.out.println(m.downLinkFormat());
                 assertEquals(expectedMessagesString[i], m.toString());
             }
             while ((m = d.nextMessage()) != null)

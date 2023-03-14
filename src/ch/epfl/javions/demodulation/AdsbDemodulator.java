@@ -37,15 +37,14 @@ public final class AdsbDemodulator {
                 lastSp = sp;
                 sp = nextSp;
                 nextSp = computeSp(window, 1);
-                sv = computeSv(window);
 
                 window.advance();
                 if (!window.isFull())
                     return null;
-            } while (!(sp >= 2 * sv && sp > lastSp && sp > nextSp));
+            } while (!(sp > lastSp && sp > nextSp && sp >= 2 * computeSv(window)));
 
             ByteString bytes = new ByteString(extractMessageBytes(window));
-            nextMessage = new RawMessage(window.position(), bytes);
+            nextMessage = new RawMessage(window.position() * 100, bytes);
         } while (nextMessage.downLinkFormat() != 17);
 
         return nextMessage;
