@@ -16,7 +16,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
     public static final int LENGTH = 14;
 
     public RawMessage {
-        Preconditions.checkArgument(timeStampNs < 0 && bytes.size() == LENGTH);
+        Preconditions.checkArgument(timeStampNs >= 0 && bytes.size() == LENGTH);
     }
 
     /**

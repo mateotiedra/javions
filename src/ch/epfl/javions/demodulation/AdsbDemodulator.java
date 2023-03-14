@@ -16,36 +16,39 @@ public final class AdsbDemodulator {
 
     AdsbDemodulator(InputStream samplesStream) throws IOException {
         window = new PowerWindow(samplesStream, 1200);
-        moveWindowToStart();
-    }
-
-    public RawMessage nextMessage() throws IOException {
-        if (window.isFull()) {
-            window.advanceBy(1200);
-            return new RawMessage(window.position(), new ByteString(extractMessageBytes(window)));
-        }
-        return null;
     }
 
     /**
-     * This method moves the window to the start of the message (2.3.2).
+     * This method computes the next message in the stream.
      *
+     * @return the next message in the stream or null if no message was found.
      * @throws IOException if an I/O error occurs
      */
-    private void moveWindowToStart() throws IOException {
+    public RawMessage nextMessage() throws IOException {
         int lastSp;
         int sp = computeSp(window);
         int nextSp = computeSp(window, 1);
         int sv;
 
-        do {
-            lastSp = sp;
-            sp = nextSp;
-            nextSp = computeSp(window, 1);
-            sv = computeSv(window);
+        RawMessage nextMessage = null;
 
-            window.advance();
-        } while (!(sp >= 2 * sv && sp > lastSp && sp > nextSp) && window.isFull());
+        do {
+            do {
+                lastSp = sp;
+                sp = nextSp;
+                nextSp = computeSp(window, 1);
+                sv = computeSv(window);
+
+                window.advance();
+                if (!window.isFull())
+                    return null;
+            } while (!(sp >= 2 * sv && sp > lastSp && sp > nextSp));
+
+            ByteString bytes = new ByteString(extractMessageBytes(window));
+            nextMessage = new RawMessage(window.position(), bytes);
+        } while (nextMessage.downLinkFormat() != 17);
+
+        return nextMessage;
     }
 
     /**
