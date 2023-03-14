@@ -17,9 +17,8 @@ public final class PowerWindow {
     private int batch;
     private final int windowSize;
     private long position = 0;
-    private int[] batchA = new int[batchsize];
-    private int[] batchB = new int[batchsize];
-
+    private final int[] batchA = new int[batchsize];
+    private final int[] batchB = new int[batchsize];
     /**
      * Constructor of the PowerWindow
      *
