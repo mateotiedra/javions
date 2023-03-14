@@ -48,9 +48,9 @@ public final class PowerWindow {
      * @throws IndexOutOfBoundsException if an I/O error occurs
      */
     public int get(int i){
-        if(i < 0 || i >= windowSize){throw new IndexOutOfBoundsException("Index invalide :" + i);}
+        if(i < 0 || windowSize<=i){throw new IndexOutOfBoundsException("Index invalide :" + i);}
 
-        if ((position % batchsize + i) > batchsize){
+        if ((position % batchsize + i) >= batchsize){
             return batchB[(int)(position % batchsize + i - batchsize)];
         }else{
             return batchA[(int)(position % batchsize + i)];
