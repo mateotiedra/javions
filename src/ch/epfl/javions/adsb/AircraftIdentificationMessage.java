@@ -8,6 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * Represents an Aircraft Identification Message (AID).
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
@@ -19,6 +24,12 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         Preconditions.checkArgument(timeStampNs >= 0);
     }
 
+    /**
+     * Returns an AircraftIdentificationMessage if the given raw message contains a valid call sign.
+     *
+     * @param rawMessage the raw message to be parsed
+     * @return an AircraftIdentificationMessage if the given raw message  contains a valid call sign, null otherwise
+     */
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
         CallSign callSign = getCallSign(rawMessage.payload());
         if (callSign != null)
@@ -27,11 +38,23 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         return null;
     }
 
+    /**
+     * Returns the category of the aircraft.
+     *
+     * @param rawMessage : the raw message from which the category is extracted
+     * @return the category of the aircraft
+     */
     private static int getCategory(RawMessage rawMessage) {
         int CA = (int) ((rawMessage.payload() >>> 48) & 0b111);
         return (((14 - rawMessage.typeCode()) << 4) & 0b11110000) | CA;
     }
 
+    /**
+     * Returns the call sign of the aircraft.
+     *
+     * @param payload : the payload of the raw message from which the call sign is extracted
+     * @return the call sign of the aircraft
+     */
     private static CallSign getCallSign(long payload) {
         String callSignString = "";
         for (int i = 0; i < 8; ++i) {
@@ -46,6 +69,11 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         return new CallSign(callSignString.trim());
     }
 
+    /**
+     * Build the representation table.
+     *
+     * @return the representation table
+     */
     private static String[] buildRepresentationTable() {
         List<String> table = new ArrayList<>();
 
