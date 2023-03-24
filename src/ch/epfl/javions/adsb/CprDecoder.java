@@ -26,8 +26,8 @@ public class CprDecoder {
         }
         double phi0 = majDeltaPhi0 * (zphi0 + y0);
         double phi1 = majDeltaPhi1 * (zphi1 + y1);
-        center(phi0);
-        center(phi1);
+        phi0 = center(phi0);
+        phi1 = center(phi1);
         if (zphi0 != zphi1) return null;
         double A;
         double argument = 1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / (Math.pow((Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN))), 2)));
@@ -53,8 +53,8 @@ public class CprDecoder {
             delta0 = majDeltaLambda0 * (zdelta0 + x0);
             delta1 = majDeltaLambda1 * (zdelta1 + x1);
         }
-        center(delta0);
-        center(delta1);
+        delta0 = center(delta0);
+        delta1 = center(delta1);
         phi0 = Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32);
         phi1 = Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32);
         delta0 = Units.convert(delta0, Units.Angle.TURN, Units.Angle.T32);
