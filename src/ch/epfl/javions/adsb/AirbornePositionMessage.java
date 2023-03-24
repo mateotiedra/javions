@@ -8,6 +8,12 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * A message containing the position of an aircraft.
+ *
+ * @author Mateo Tiedra (356525)
+ */
+
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x, double y) {
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
@@ -17,6 +23,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         Preconditions.checkArgument(y >= 0 && y < 1);
     }
 
+    /**
+     * Create a new AirbornePositionMessage from a RawMessage.
+     *
+     * @param rawMessage : the RawMessage extract the position from
+     * @return a new AirbornePositionMessage
+     */
     public static AirbornePositionMessage of(RawMessage rawMessage) {
         long payload = rawMessage.payload();
         long lon_cpr = Bits.extractUInt(payload, 0, 17);
@@ -34,6 +46,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         return new AirbornePositionMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), altitude, format, (double) lon_cpr / (1 << 17), (double) lat_cpr / (1 << 17));
     }
 
+    /**
+     * Decode the altitude from the payload.
+     *
+     * @param payload : the payload to decode the altitude from
+     * @return the altitude in meters
+     */
     private static double decodeAltitude(long payload) throws IllegalArgumentException {
         int encodedAltitude = Bits.extractUInt(payload, 36, 12);
 
@@ -60,6 +78,13 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
     }
 
+    /**
+     * Join the bits at the given indices.
+     *
+     * @param value   : the value to extract the bits from
+     * @param indices : the indices of the bits to extract
+     * @return the bits at the given indices
+     */
     private static int joinBitsByIndex(int value, int... indices) {
         int result = 0;
         for (int i = 0; i < indices.length; i++) {
@@ -69,6 +94,12 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
         return (result);
     }
 
+    /**
+     * Decode the gray code.
+     *
+     * @param grayCode : the gray code to decode
+     * @return the decoded gray code
+     */
     private static int decodeGrayCode(int grayCode) {
         int result = 0;
         while (grayCode > 0) {
