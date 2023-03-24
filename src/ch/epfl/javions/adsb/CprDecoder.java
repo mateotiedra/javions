@@ -4,10 +4,26 @@ import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.Units;
 
+/**
+ * A class that decodes the CPR encoded position.
+ *
+ * @author Kevan Lam (356395)
+ **/
 public class CprDecoder {
     private CprDecoder() {
     }
 
+    /**
+     * Decodes the CPR encoded position.
+     *
+     * @param x0         The longitude of the first position.
+     * @param y0         The latitude of the first position.
+     * @param x1         The longitude of the second position.
+     * @param y1         The latitude of the second position.
+     * @param mostRecent The most recent position.
+     * @return The decoded position.
+     * @throws IllegalArgumentException if the most recent position is not 0 or 1.
+     **/
     public static GeoPos decodePosition(double x0, double y0, double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
         final int Zphi0 = 60;
@@ -66,6 +82,12 @@ public class CprDecoder {
         else return new GeoPos((int) Math.rint(delta1), (int) Math.rint(delta0));
     }
 
+    /**
+     * Centers the value.
+     *
+     * @param needToCenter argument to center
+     * @return centered value
+     */
     public static double center(double needToCenter) {
         return needToCenter >= 0.5 ? needToCenter - 1 : needToCenter;
     }
