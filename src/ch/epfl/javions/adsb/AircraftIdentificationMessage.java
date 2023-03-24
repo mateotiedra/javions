@@ -1,5 +1,6 @@
 package ch.epfl.javions.adsb;
 
+import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
@@ -10,12 +11,12 @@ import java.util.Objects;
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
-    static final String[] REPRESENTATION_TABLE = buildRepresentationTable();
+    private static final String[] REPRESENTATION_TABLE = buildRepresentationTable();
 
     public AircraftIdentificationMessage {
         Objects.requireNonNull(icaoAddress);
         Objects.requireNonNull(callSign);
-        Preconditions.checkArgument(timeStampNs < 0);
+        Preconditions.checkArgument(timeStampNs >= 0);
     }
 
     public static AircraftIdentificationMessage of(RawMessage rawMessage) {
@@ -34,24 +35,27 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
     private static CallSign getCallSign(long payload) {
         String callSignString = "";
         for (int i = 0; i < 8; ++i) {
-            long callSignInt = (payload >>> (i * 6)) & 0b111111;
-            String newChar = REPRESENTATION_TABLE[(int) callSignInt];
+            int charIndex = Bits.extractUInt(payload, 6 * i, 6);
+            String newChar = REPRESENTATION_TABLE[charIndex];
             if (newChar != null) {
-                callSignString += newChar;
+                callSignString = newChar + callSignString;
             } else {
                 return null;
             }
         }
-        return new CallSign(callSignString);
+        return new CallSign(callSignString.trim());
     }
 
     private static String[] buildRepresentationTable() {
-        List<String> table = new ArrayList<>(List.of(new String[]{null}));
+        List<String> table = new ArrayList<>();
+
+        table.add(null);
+
         for (char c = 'A'; c <= 'Z'; c++) {
             table.add(String.valueOf(c));
         }
 
-        while (table.size() < 47) {
+        while (table.size() < 48) {
             table.add(null);
         }
 
