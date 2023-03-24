@@ -26,15 +26,19 @@ public class CprDecoder {
         }
         double phi0 = majDeltaPhi0 * (zphi0 + y0);
         double phi1 = majDeltaPhi1 * (zphi1 + y1);
+        center(phi0);
+        center(phi1);
+        if (zphi0 != zphi1) return null;
         double A;
-        if (1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / Math.pow((Math.cos(phi0)), 2)) > 1) A = 2 * Math.PI;
-        else A = Math.acos(1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / Math.pow((Math.cos(phi0)), 2)));
+        double argument = 1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / (Math.pow((Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN))), 2)));
+        if (Double.isNaN(argument)) A = 2 * Math.PI;
+        else A = Math.acos(argument);
         double Zlambda0 = Math.floor(2 * Math.PI / A);
         double Zlambda1 = Zlambda0 - 1;
-        double zdelta = Math.rint(x0 * majDeltaPhi1 - x1 * majDeltaPhi0);
+        double zdelta = Math.rint(x0 * Zlambda1 - x1 * Zlambda0);
         double zdelta0, zdelta1, delta0 = 0, delta1 = 0;
-        double majDeltaLambda0 = 1 / Zlambda0;
-        double majDeltaLambda1 = 1 / Zlambda1;
+        double majDeltaLambda0 = 1.0 / Zlambda0;
+        double majDeltaLambda1 = 1.0 / Zlambda1;
         if (Zlambda0 == 1) {
             delta0 = x0;
             delta1 = x1;
@@ -49,15 +53,20 @@ public class CprDecoder {
             delta0 = majDeltaLambda0 * (zdelta0 + x0);
             delta1 = majDeltaLambda1 * (zdelta1 + x1);
         }
+        center(delta0);
+        center(delta1);
         phi0 = Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32);
         phi1 = Units.convert(phi1, Units.Angle.TURN, Units.Angle.T32);
         delta0 = Units.convert(delta0, Units.Angle.TURN, Units.Angle.T32);
         delta1 = Units.convert(delta1, Units.Angle.TURN, Units.Angle.T32);
         if ((Units.convert(phi0, Units.Angle.T32, Units.Angle.DEGREE) >= 90 && Units.convert(phi0, Units.Angle.T32, Units.Angle.DEGREE) <= -90)
-                || (Units.convert(phi1, Units.Angle.T32, Units.Angle.DEGREE) >= 90 && Units.convert(phi1, Units.Angle.T32, Units.Angle.DEGREE) <= -90)
-                || zphi0 != zphi1)
+                || (Units.convert(phi1, Units.Angle.T32, Units.Angle.DEGREE) >= 90 && Units.convert(phi1, Units.Angle.T32, Units.Angle.DEGREE) <= -90))
             return null;
-        else if (mostRecent == 0) return new GeoPos((int) delta0, (int) phi0);
-        else return new GeoPos((int) delta1, (int) phi1);
+        else if (mostRecent == 0) return new GeoPos((int) Math.rint(delta0), (int) Math.rint(phi0));
+        else return new GeoPos((int) Math.rint(delta1), (int) Math.rint(delta0));
+    }
+
+    public static double center(double needToCenter) {
+        return needToCenter >= 0.5 ? needToCenter - 1 : needToCenter;
     }
 }
