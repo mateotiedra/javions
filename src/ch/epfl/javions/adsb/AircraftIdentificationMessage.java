@@ -59,7 +59,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
         String callSignString = "";
         for (int i = 0; i < 8; ++i) {
             int charIndex = Bits.extractUInt(payload, 6 * i, 6);
-            String newChar = REPRESENTATION_TABLE[charIndex];
+            String newChar = charIndex > 57 ? null : REPRESENTATION_TABLE[charIndex];
             if (newChar != null) {
                 callSignString = newChar + callSignString;
             } else {
