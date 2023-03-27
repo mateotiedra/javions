@@ -14,7 +14,13 @@ import java.util.Objects;
  * @author Mateo Tiedra (356525)
  */
 
-public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x, double y) {
+public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
+                                      double y) {
+
+    private static final int ENCODED_ALTITUDE_POS = 36;
+    private static final int ENCODED_ALTITUDE_SIZE = 12;
+    private static final int Q_POS_IN_ALTITUDE_PART = 4;
+
     public AirbornePositionMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0);
@@ -53,9 +59,9 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
      * @return the altitude in meters
      */
     private static double decodeAltitude(long payload) throws IllegalArgumentException {
-        int encodedAltitude = Bits.extractUInt(payload, 36, 12);
+        int encodedAltitude = Bits.extractUInt(payload, ENCODED_ALTITUDE_POS, ENCODED_ALTITUDE_SIZE);
 
-        int q = Bits.extractUInt(encodedAltitude, 4, 1);
+        int q = Bits.extractUInt(encodedAltitude, Q_POS_IN_ALTITUDE_PART, 1);
 
         if (q == 0) {
             int msbAlt = decodeGrayCode(joinBitsByIndex(encodedAltitude, 4, 2, 0, 10, 8, 6, 5, 3, 1));      // D1 D2 D4 A1 A2 A4 B1 B2 B4
@@ -73,7 +79,9 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
 
             return Units.convertFrom(msbAlt * 500 + lsbAlt * 100 - 1300, Units.Length.FOOT);
         } else {
-            long encodedAltitudeWithoutQ = Bits.extractUInt(encodedAltitude, 0, 4) | ((long) Bits.extractUInt(encodedAltitude, 5, 7) << 4);
+            long encodedAltitudeWithoutQ = Bits.extractUInt(encodedAltitude, 0, Q_POS_IN_ALTITUDE_PART)
+                    | ((long) Bits.extractUInt(encodedAltitude, Q_POS_IN_ALTITUDE_PART + 1, ENCODED_ALTITUDE_SIZE - Q_POS_IN_ALTITUDE_PART - 1) << 4);
+
             return Units.convertFrom(25 * encodedAltitudeWithoutQ - 1000, Units.Length.FOOT);
         }
     }
@@ -88,7 +96,7 @@ public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static int joinBitsByIndex(int value, int... indices) {
         int result = 0;
         for (int i = 0; i < indices.length; i++) {
-            result <<= Math.min(i, 1);
+            result <<= i == 0 ? 0 : 1;
             result |= Bits.extractUInt(value, indices[i], 1);
         }
         return (result);

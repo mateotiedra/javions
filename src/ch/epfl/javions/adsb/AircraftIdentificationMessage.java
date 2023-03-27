@@ -17,6 +17,10 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
                                             CallSign callSign) implements Message {
 
     private static final String[] REPRESENTATION_TABLE = buildRepresentationTable();
+    private static final int NUMBER_STARTING_POS = 48;
+    private static final int SPACE_POS = 32;
+
+    private static final int ENCODED_CHAR_SIZE = 6;
 
     public AircraftIdentificationMessage {
         Objects.requireNonNull(icaoAddress);
@@ -57,9 +61,9 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      */
     private static CallSign getCallSign(long payload) {
         String callSignString = "";
-        for (int i = 0; i < 8; ++i) {
-            int charIndex = Bits.extractUInt(payload, 6 * i, 6);
-            String newChar = charIndex > 57 ? null : REPRESENTATION_TABLE[charIndex];
+        for (int i = 0; i < Byte.SIZE; ++i) {
+            int charIndex = Bits.extractUInt(payload, ENCODED_CHAR_SIZE * i, ENCODED_CHAR_SIZE);
+            String newChar = charIndex > REPRESENTATION_TABLE.length ? null : REPRESENTATION_TABLE[charIndex];
             if (newChar != null) {
                 callSignString = newChar + callSignString;
             } else {
@@ -83,7 +87,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             table.add(String.valueOf(c));
         }
 
-        while (table.size() < 48) {
+        while (table.size() < NUMBER_STARTING_POS) {
             table.add(null);
         }
 
@@ -91,7 +95,7 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
             table.add(String.valueOf(i));
         }
 
-        table.set(32, " ");
+        table.set(SPACE_POS, " ");
 
         return table.toArray(new String[0]);
     }
