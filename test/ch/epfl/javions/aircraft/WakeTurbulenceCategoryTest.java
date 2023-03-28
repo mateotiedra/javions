@@ -4,29 +4,17 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class WakeTurbulenceCategoryTest {
+class WakeTurbulenceCategoryTest {
     @Test
-    void wakeTurbulenceCategoryOfWorksWithL() {
+    void wakeTurbulenceCategoryOfWorks() {
         assertEquals(WakeTurbulenceCategory.LIGHT, WakeTurbulenceCategory.of("L"));
-    }
-
-    @Test
-    void wakeTurbulenceCategoryOfWorksWithM() {
         assertEquals(WakeTurbulenceCategory.MEDIUM, WakeTurbulenceCategory.of("M"));
-    }
-
-    @Test
-    void wakeTurbulenceCategoryOfWorksWithH() {
         assertEquals(WakeTurbulenceCategory.HEAVY, WakeTurbulenceCategory.of("H"));
-    }
-
-    @Test
-    void wakeTurbulenceCategoryOfWorksWithEmptyString() {
+        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("X"));
+        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("l"));
+        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("m"));
+        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("h"));
         assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of(""));
-    }
-
-    @Test
-    void wakeTurbulenceCategoryOfWorksWithOther() {
-        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("DDF"));
+        assertEquals(WakeTurbulenceCategory.UNKNOWN, WakeTurbulenceCategory.of("LIGHT"));
     }
 }

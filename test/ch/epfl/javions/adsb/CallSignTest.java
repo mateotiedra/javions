@@ -5,29 +5,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-public class CallSignTest {
+class CallSignTest {
     @Test
-    void callSignWorksWithCorrectString() {
-        assertDoesNotThrow(() -> {
-            new CallSign("R534GS");
+    void callSignConstructorThrowsWithInvalidCallSign() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new CallSign("callsign");
         });
     }
 
     @Test
-    void callSignWorksWithEmptyString() {
+    void callSignConstructorAcceptsEmptyCallSign() {
         assertDoesNotThrow(() -> {
             new CallSign("");
         });
     }
 
     @Test
-    void callSignWorksWithIncorrectStringBecauseInvalidCharacter() {
-        assertThrows(IllegalArgumentException.class, () -> new CallSign("R534GH!"));
-    }
-
-    @Test
-    void callSignWorksWithIncorrectStringBecauseTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> new CallSign("R534GSQQ3Q"));
+    void callSignConstructorAcceptsValidCallSign() {
+        assertDoesNotThrow(() -> {
+            new CallSign("AFR39BR");
+        });
     }
 }

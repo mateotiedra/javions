@@ -2,34 +2,28 @@ package ch.epfl.javions.aircraft;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-
-public class IcaoAddressTest {
+class IcaoAddressTest {
     @Test
-    void icaoAddressWorksWithCorrectString() {
-        assertDoesNotThrow(() -> {
-            new IcaoAddress("4B1814");
+    void icaoAddressConstructorThrowsWithInvalidAddress() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new IcaoAddress("00000a");
         });
     }
 
     @Test
-    void icaoAddressWorksWithIncorrectStringBecauseTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> new IcaoAddress("4B18143"));
+    void icaoAddressConstructorThrowsWithEmptyAddress() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new IcaoAddress("");
+        });
     }
 
     @Test
-    void icaoAddressWorksWithIncorrectStringBecauseTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> new IcaoAddress("4B181"));
-    }
-
-    @Test
-    void icaoAddressWorksWithIncorrectStringBecauseIncorrectCharacter() {
-        assertThrows(IllegalArgumentException.class, () -> new IcaoAddress("4G181"));
-    }
-
-    @Test
-    void icaoAddressWorksWithIncorrectStringBecauseEmptyString() {
-        assertThrows(IllegalArgumentException.class, () -> new IcaoAddress(""));
+    void icaoAddressConstructorAcceptsValidAddress() {
+        assertDoesNotThrow(() -> {
+            new IcaoAddress("ABCDEF");
+        });
     }
 }

@@ -5,21 +5,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AircraftRegistrationTest {
+class AircraftRegistrationTest {
     @Test
-    void aircraftRegistrationTestWorksWithCorrectString() {
-        assertDoesNotThrow(() -> {
-            new AircraftRegistration("HB-JDC");
+    void aircraftRegistrationConstructorThrowsWithInvalidRegistration() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftRegistration("abc");
         });
     }
 
     @Test
-    void aircraftRegistrationTestWorksWithIncorrectStringBecauseInvalidCharacter() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftRegistration("HB-JDC]"));
+    void aircraftRegistrationConstructorThrowsWithEmptyRegistration() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftRegistration("");
+        });
     }
 
     @Test
-    void aircraftRegistrationTestWorksWithIncorrectStringBecauseEmptyString() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftRegistration(""));
+    void aircraftRegistrationConstructorAcceptsValidRegistration() {
+        assertDoesNotThrow(() -> {
+            new AircraftRegistration("F-HZUK");
+        });
     }
 }

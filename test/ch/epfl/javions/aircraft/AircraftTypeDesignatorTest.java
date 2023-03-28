@@ -5,33 +5,25 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class AircraftTypeDesignatorTest {
+class AircraftTypeDesignatorTest {
     @Test
-    void aircraftTypeDesignatorWorksWithCorrectString() {
-        assertDoesNotThrow(() -> {
-            new AircraftTypeDesignator("A20N");
+    void aircraftTypeDesignatorConstructorThrowsWithInvalidTypeDesignator() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftTypeDesignator("ABCDE");
         });
     }
 
     @Test
-    void aircraftTypeDesignatorWorksWithEmptyString() {
+    void aircraftTypeDesignatorConstructorAcceptsEmptyTypeDesignator() {
         assertDoesNotThrow(() -> {
             new AircraftTypeDesignator("");
         });
     }
 
     @Test
-    void aircraftTypeDesignatorWorksWithIncorrectStringBecauseInvalidCharacter() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftTypeDesignator("A20N-"));
-    }
-
-    @Test
-    void aircraftTypeDesignatorWorksWithIncorrectStringBecauseTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftTypeDesignator("A"));
-    }
-
-    @Test
-    void aircraftTypeDesignatorWorksWithIncorrectStringBecauseTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftTypeDesignator("A20NLO"));
+    void aircraftTypeDesignatorConstructorAcceptsValidTypeDesignator() {
+        assertDoesNotThrow(() -> {
+            new AircraftTypeDesignator("BCS3");
+        });
     }
 }

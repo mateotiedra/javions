@@ -2,36 +2,27 @@ package ch.epfl.javions.aircraft;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AircraftDescriptionTest {
+class AircraftDescriptionTest {
     @Test
-    void aircraftDescriptionWorksWithCorrectString() {
-        assertDoesNotThrow(() -> {
-            new AircraftDescription("L2J");
+    void aircraftDescriptionConstructorThrowsWithInvalidDescription() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AircraftDescription("abc");
         });
     }
 
     @Test
-    void aircraftDescriptionWorksWithEmptyString() {
+    void aircraftDescriptionConstructorAcceptsEmptyDescription() {
         assertDoesNotThrow(() -> {
             new AircraftDescription("");
         });
     }
 
     @Test
-    void aircraftDescriptionWorksWithIncorrectStringBecauseInvalidCharacter() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftDescription("22J"));
-    }
-
-    @Test
-    void aircraftDescriptionWorksWithIncorrectStringBecauseTooShort() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftDescription("L2"));
-    }
-
-    @Test
-    void aircraftDescriptionWorksWithIncorrectStringBecauseTooLong() {
-        assertThrows(IllegalArgumentException.class, () -> new AircraftDescription("L2JJ"));
+    void aircraftDescriptionConstructorAcceptsValidDescription() {
+        assertDoesNotThrow(() -> {
+            new AircraftDescription("A0E");
+        });
     }
 }

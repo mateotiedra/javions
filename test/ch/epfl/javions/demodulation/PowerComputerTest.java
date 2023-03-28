@@ -3,111 +3,16 @@ package ch.epfl.javions.demodulation;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Base64;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PowerComputerTest {
-
-    @Test
-    public void generalTest() throws Exception {
-        // Prepare input stream
-        byte[] inputBytes = {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07};
-        ByteArrayInputStream inputStream = new ByteArrayInputStream(inputBytes);
-
-        // Create PowerComputer object and read batch
-        int batchSize = 8;
-        PowerComputer powerComputer = new PowerComputer(inputStream, batchSize);
-        int[] batch = new int[batchSize];
-        int numBatches = powerComputer.readBatch(batch);
-
-        // Verify results
-        assertEquals(2, numBatches);
-        assertEquals(4844548, batch[0]);
-    }
-
-    @Test
-    void constructorWorksWithNullStream() {
-        assertThrows(NullPointerException.class, () -> new PowerComputer(null, 8));
-    }
-
-    @Test
-    void constructorWorksWithBatchSizeEqualsZero() {
-        String url = getClass().getResource("/samples.bin").getFile();
-        try (InputStream stream = new FileInputStream(url)) {
-            assertThrows(IllegalArgumentException.class, () -> new PowerComputer(stream, 0));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    void readBatchWorksNotCorrespondingBatchSize() {
-        String url = getClass().getResource("/samples.bin").getFile();
-        try (InputStream stream = new FileInputStream(url)) {
-            PowerComputer powerComputer = new PowerComputer(stream, 1200);
-            assertThrows(IllegalArgumentException.class, () -> powerComputer.readBatch(new int[1201]));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    void readBatchReturnsCorrectNumberOfSampleRead() {
-        String url = getClass().getResource("/samples.bin").getFile();
-        for (int batchSize : new int[]{2416, 1208, 400}) {
-            try (InputStream stream = new FileInputStream(url)) {
-                PowerComputer powerComputerWithBigArray = new PowerComputer(stream, batchSize);
-                int[] batch = new int[batchSize];
-                assertEquals(Math.min(1201, batchSize), powerComputerWithBigArray.readBatch(batch));
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    @Test
-    void readBatchReadsCorrectlyTheFirst10Sample() {
-        String url = getClass().getResource("/samples.bin").getFile();
-        try (InputStream stream = new FileInputStream(url)) {
-            PowerComputer powerComputer = new PowerComputer(stream, 24);
-            int[] batch = new int[24];
-            powerComputer.readBatch(batch);
-            int[] expectedValues = {73, 292, 65, 745, 98, 4226, 12244, 25722, 36818, 23825};
-
-            for (int i = 0; i < expectedValues.length; i++) {
-                assertEquals(expectedValues[i], batch[i]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    void readBatchReadsCorrectlyTheFirst10SampleButSeparately() {
-        String url = getClass().getResource("/samples.bin").getFile();
-        try (InputStream stream = new FileInputStream(url)) {
-            PowerComputer powerComputer = new PowerComputer(stream, 8);
-            int[] batch = new int[8];
-
-            int[] firstHeightExpectedValues = {73, 292, 65, 745, 98, 4226, 12244, 25722};
-            powerComputer.readBatch(batch);
-            for (int i = 0; i < firstHeightExpectedValues.length; i++) {
-                assertEquals(firstHeightExpectedValues[i], batch[i]);
-            }
-
-            int[] batchWithLastTwoValues = new int[]{36818, 23825};
-            powerComputer.readBatch(batch);
-            for (int i = 0; i < batchWithLastTwoValues.length; i++) {
-                assertEquals(batchWithLastTwoValues[i], batch[i]);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+class PowerComputerTest {
+    //<editor-fold desc="Test data">
+    // The given samples.bin file, base64-encoded
     static final String SAMPLES_BIN_BASE64 = """
             /QcICPcH+Af7B/gH9AfwB+kH9wfvB74HBgglCOsHvwf/BxMI+gfiB9sH9QfzBwII8wcBCPsHBAjuB/YH
             +gf+B/AH7wfuB/EH/gfwB/UH+wfqB/MH7wfyB/UH7QfwB/YH8Af6B/oH9gfwB+sH+wf0B/IH9AfzB/EH
@@ -311,4 +216,59 @@ public class PowerComputerTest {
             11492, 23185, 37780, 33445, 14297, 4040, 746, 52, 178, 37, 580,
             298, 32, 612, 1466, 9224, 22061, 32080, 36324, 19784, 3370,
             1130, 360, 740};
+    //</editor-fold>
+
+    static final Base64.Decoder B64_DECODER = Base64.getDecoder();
+
+    static InputStream getSamplesStream() {
+        return new ByteArrayInputStream(B64_DECODER.decode(SAMPLES_BIN_BASE64));
+    }
+
+    @Test
+    void powerComputerConstructorThrowsOnZeroBatchSize() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            try (var s = new ByteArrayInputStream(new byte[0])) {
+                new PowerComputer(s, 0);
+            }
+        });
+    }
+
+    @Test
+    void powerComputerConstructorThrowsOnInvalidBatchSize() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            try (var s = new ByteArrayInputStream(new byte[0])) {
+                new PowerComputer(s, 7);
+            }
+        });
+    }
+
+    @Test
+    void powerComputerReadBatchWorksOnGivenSamples() throws IOException {
+        try (var samplesStream = getSamplesStream()) {
+            var batch = new int[1200];
+            var powerComputer = new PowerComputer(samplesStream, batch.length);
+            var read = powerComputer.readBatch(batch);
+            assertEquals(batch.length, read);
+            assertArrayEquals(POWER_SAMPLES, batch);
+        }
+    }
+
+    @Test
+    void powerComputerReadBatchWorksWithAnyBatchSize() throws IOException {
+        var maxBatchSize = 1024;
+        var expectedSamples = Arrays.copyOf(POWER_SAMPLES, maxBatchSize);
+        for (int batchSize = 8; batchSize <= maxBatchSize; batchSize <<= 1) {
+            try (var samplesStream = getSamplesStream()) {
+                var actualSamples = new int[maxBatchSize];
+                var batch = new int[batchSize];
+                var powerComputer = new PowerComputer(samplesStream, batchSize);
+                for (int i = 0; i < maxBatchSize / batchSize; i += 1) {
+                    var read = powerComputer.readBatch(batch);
+                    assertEquals(batchSize, read);
+                    System.arraycopy(batch, 0, actualSamples, i * batchSize, batchSize);
+                }
+                assertArrayEquals(expectedSamples, actualSamples);
+            }
+        }
+    }
 }
