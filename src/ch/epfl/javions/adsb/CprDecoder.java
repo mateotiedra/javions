@@ -10,6 +10,11 @@ import ch.epfl.javions.Units;
  * @author Kevan Lam (356395)
  **/
 public class CprDecoder {
+    private static final int Zphi0 = 60;
+    private static final int Zphi1 = 59;
+    private static final double majDeltaPhi0 = 1 / (double) Zphi0;
+    private static final double majDeltaPhi1 = 1 / (double) Zphi1;
+
     private CprDecoder() {
     }
 
@@ -26,10 +31,6 @@ public class CprDecoder {
      **/
     public static GeoPos decodePosition(double x0, double y0, double x1, double y1, int mostRecent) {
         Preconditions.checkArgument(mostRecent == 0 || mostRecent == 1);
-        final int Zphi0 = 60;
-        final int Zphi1 = 59;
-        final double majDeltaPhi0 = 1 / (double) Zphi0;
-        final double majDeltaPhi1 = 1 / (double) Zphi1;
 
         double zphi = Math.rint(y0 * Zphi1 - y1 * Zphi0);
         double zphi0, zphi1;
