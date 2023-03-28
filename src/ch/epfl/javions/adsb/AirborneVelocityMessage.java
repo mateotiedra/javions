@@ -7,6 +7,12 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 
 import java.util.Objects;
 
+
+/**
+ * Represents an Airborne Velocity Message.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed, double trackOrHeading) implements Message {
 
     private static final int ST_POS = 48;
@@ -24,6 +30,14 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static final int ENCODED_AIR_SPEED_RATIO = 1 << 10;
 
 
+    /**
+     * Constructs an AirborneVelocityMessage.
+     *
+     * @param timeStampNs    the time stamp of the message (in nanoseconds)
+     * @param icaoAddress    the ICAO address of the aircraft
+     * @param speed          the speed of the aircraft in meters per second
+     * @param trackOrHeading the angle between the direction and the north clockwise, in radians
+     */
     public AirborneVelocityMessage {
         Objects.requireNonNull(icaoAddress);
         Preconditions.checkArgument(timeStampNs >= 0);
@@ -31,6 +45,12 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         Preconditions.checkArgument(trackOrHeading >= 0);
     }
 
+    /**
+     * Returns an AirborneVelocityMessage if the given raw message contains a valid airborne velocity.
+     *
+     * @param rawMessage the raw message from where the airborne velocity should be extracted
+     * @return an AirborneVelocityMessage if the given raw message contains a valid airborne velocity, null otherwise
+     */
     public static AirborneVelocityMessage of(RawMessage rawMessage) {
         long payload = rawMessage.payload();
         int st = Bits.extractUInt(payload, ST_POS, ST_SIZE);
@@ -51,7 +71,17 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         }
     }
 
+    /**
+     * Represents a velocity.
+     */
     private record Velocity(double speed, double angle) {
+
+        /**
+         * Constructs a Velocity.
+         *
+         * @param speed the speed of the aircraft in meters per second, must be greater than or equal to 0
+         * @param angle the angle between the direction and the north clockwise, in radians, must be greater than or equal to 0
+         */
         public Velocity {
             Preconditions.checkArgument(speed >= 0);
             Preconditions.checkArgument(angle >= 0);
@@ -59,6 +89,13 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
 
     }
 
+    /**
+     * Computes the ground speed from the given payload.
+     *
+     * @param payload    the payload of the message
+     * @param factorFour whether the speed should be multiplied by 4
+     * @return the ground speed in meters per second
+     */
     private static Velocity computeGroundSpeed(long payload, boolean factorFour) {
         int dew = Bits.extractUInt(payload, V_SIZE + DIR_SIZE + V_SIZE, DIR_SIZE);
         int vew = Bits.extractUInt(payload, V_SIZE + DIR_SIZE, V_SIZE) - 1;
@@ -71,6 +108,13 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         return new Velocity(Units.convertFrom(speed, Units.Speed.KNOT), angle);
     }
 
+    /**
+     * Computes the air speed from the given payload.
+     *
+     * @param payload    the payload of the message
+     * @param factorFour whether the speed should be multiplied by 4
+     * @return the air speed in meters per second
+     */
     private static Velocity computeAirSpeed(long payload, boolean factorFour) {
         int as = Bits.extractUInt(payload, 0, AS_SIZE);
         int hdg = Bits.extractUInt(payload, HDG_POS, HDG_SIZE);

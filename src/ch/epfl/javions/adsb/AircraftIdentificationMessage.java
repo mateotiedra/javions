@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Represents an Aircraft Identification Message (AID).
+ * Represents an Aircraft Identification Message.
  *
  * @author Mateo Tiedra (356525)
  */
@@ -22,6 +22,14 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
 
     private static final int ENCODED_CHAR_SIZE = 6;
 
+    /**
+     * Constructs an AircraftIdentificationMessage.
+     *
+     * @param timeStampNs the time stamp of the message (in nanoseconds)
+     * @param icaoAddress the ICAO address of the aircraft
+     * @param category    the category of the aircraft
+     * @param callSign    the call sign of the aircraft
+     */
     public AircraftIdentificationMessage {
         Objects.requireNonNull(icaoAddress);
         Objects.requireNonNull(callSign);
