@@ -12,10 +12,13 @@ import java.io.InputStream;
  */
 public final class AdsbDemodulator {
     private final PowerWindow window;
+
+    private static final int WINDOW_SIZE = 1200;
     private static final int[] MULTIPLE_OF_10 = initMultipleOf10(120);
+    private static final int TENTH_OF_MICRO_TO_NANO = 100;
 
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
-        window = new PowerWindow(samplesStream, 1200);
+        window = new PowerWindow(samplesStream, WINDOW_SIZE);
     }
 
     /**
@@ -43,10 +46,10 @@ public final class AdsbDemodulator {
 
             } while (!(sp > lastSp && sp > nextSp && sp >= 2 * computeSv(window)));
 
-            nextMessage = RawMessage.of(window.position() * 100, extractMessageBytes(window));
-        } while (!(nextMessage != null && nextMessage.downLinkFormat() == 17));
+            nextMessage = RawMessage.of(window.position() * TENTH_OF_MICRO_TO_NANO, extractMessageBytes(window));
+        } while (!(nextMessage != null && nextMessage.downLinkFormat() == RawMessage.EXPECTED_FORMAT));
 
-        window.advanceBy(1200);
+        window.advanceBy(WINDOW_SIZE);
 
         return nextMessage;
     }
