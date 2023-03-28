@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
-                                      double y) {
+                                      double y) implements Message {
 
     private static final int ENCODED_ALTITUDE_POS = 36;
     private static final int ENCODED_ALTITUDE_SIZE = 12;
