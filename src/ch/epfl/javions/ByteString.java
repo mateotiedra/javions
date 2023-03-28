@@ -14,6 +14,8 @@ import static java.util.Objects.checkFromToIndex;
 public class ByteString {
     byte[] bytes;
 
+    private static final int oneByteMask = (1 << Byte.SIZE) - 1;
+
     public ByteString(byte[] bytes) {
         this.bytes = bytes.clone();
     }
@@ -57,7 +59,7 @@ public class ByteString {
         if (index < 0 || index >= bytes.length)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
 
-        return (bytes[index] & 0b11111111);
+        return (bytes[index] & oneByteMask);
     }
 
     /**
@@ -73,7 +75,7 @@ public class ByteString {
         // Validate input indices
         if (fromIndex < 0 || fromIndex > toIndex || toIndex > bytes.length) {
             throw new IndexOutOfBoundsException();
-        } else if (toIndex - fromIndex > 8) {
+        } else if (toIndex - fromIndex > Byte.SIZE) {
             throw new IllegalArgumentException("Cannot extract more than 8 bytes");
         }
 
@@ -82,7 +84,7 @@ public class ByteString {
         // Extract bytes as a long value
         long value = 0;
         for (int i = fromIndex; i < toIndex; i++) {
-            value = (value << 8) + (bytes[i] & 0xFF);
+            value = (value << Byte.SIZE) + (bytes[i] & oneByteMask);
         }
         return value;
     }

@@ -15,6 +15,13 @@ import ch.epfl.javions.aircraft.IcaoAddress;
 public record RawMessage(long timeStampNs, ByteString bytes) {
     public static final int LENGTH = 14;
 
+    private static final int DF_POS_IN_FIRST_BYTE = 3;
+    public static final int EXPECTED_FORMAT = 17;
+
+    private static final int TYPE_CODE_POS_IN_PAYLOAD = 51;
+
+    private static final int FIVE_BITS_MASK = 0b11111;
+
     public RawMessage {
         Preconditions.checkArgument(timeStampNs >= 0 && bytes.size() == LENGTH);
     }
@@ -41,7 +48,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the size of the message
      */
     public static int size(byte byte0) {
-        return ((Byte.toUnsignedInt(byte0) >>> 3) == 17) ? LENGTH : 0;
+        return ((Byte.toUnsignedInt(byte0) >>> DF_POS_IN_FIRST_BYTE) == EXPECTED_FORMAT) ? LENGTH : 0;
     }
 
     /**
@@ -51,7 +58,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the type code extracted from the payload
      */
     public static int typeCode(long payload) {
-        return (int) ((payload >>> 51) & 0b11111);
+        return (int) ((payload >>> TYPE_CODE_POS_IN_PAYLOAD) & FIVE_BITS_MASK);
     }
 
     /**
@@ -60,7 +67,7 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      * @return the DF attribute of the message
      */
     public int downLinkFormat() {
-        return bytes.byteAt(0) >>> 3;
+        return bytes.byteAt(0) >>> DF_POS_IN_FIRST_BYTE;
     }
 
     /**
