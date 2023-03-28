@@ -12,6 +12,8 @@ final public class Crc24 {
     private static final int CRC_LENGTH = 24;
     private final int[] buildTable;
 
+    private static final int MAX_BYTE_VALUE = 256;
+
     /**
      * Constructs a Crc24 object.
      *
@@ -72,8 +74,8 @@ final public class Crc24 {
      * @return an integer array the table
      */
     private static int[] buildTable(int generator) {
-        int[] table = new int[256];
-        for (int i = 0; i < 256; ++i) {
+        int[] table = new int[MAX_BYTE_VALUE];
+        for (int i = 0; i < MAX_BYTE_VALUE; ++i) {
             table[i] = crc_bitwise(new byte[]{(byte) i}, generator);
         }
         return table;

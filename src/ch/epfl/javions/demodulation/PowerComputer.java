@@ -24,7 +24,7 @@ public final class PowerComputer {
      * @param batchSize the size of the batch
      */
     public PowerComputer(InputStream stream, int batchSize) {
-        Preconditions.checkArgument(batchSize > 0 && batchSize % 8 == 0);
+        Preconditions.checkArgument(batchSize > 0 && batchSize % Byte.SIZE == 0);
 
         this.samples = new short[batchSize * 2];
         this.batchSize = batchSize;
@@ -43,7 +43,7 @@ public final class PowerComputer {
         int nbrOfSamplesRead = samplesDecoder.readBatch(samples);
 
         for (int i = 0; i < nbrOfSamplesRead; i += 2) {
-            int lastOfTheLastHeightIndex = i % 8;
+            int lastOfTheLastHeightIndex = i % Byte.SIZE;
             lastHeightSamples[lastOfTheLastHeightIndex] = samples[i];
             lastHeightSamples[lastOfTheLastHeightIndex + 1] = samples[i + 1];
             batch[i / 2] = computePowerSample(lastHeightSamples, lastOfTheLastHeightIndex + 1);
@@ -59,8 +59,8 @@ public final class PowerComputer {
      * @return the power of the samples
      */
     private static int computePowerSample(short[] lhs, int lotli) {
-        int InPP = lhs[(lotli - 7 + 8) % 8] - lhs[(lotli - 5 + 8) % 8] + lhs[(lotli - 3 + 8) % 8] - lhs[(lotli - 1 + 8) % 8];
-        int QnPP = lhs[(lotli - 6 + 8) % 8] - lhs[(lotli - 4 + 8) % 8] + lhs[(lotli - 2 + 8) % 8] - lhs[lotli % 8];
+        int InPP = lhs[(lotli - 7 + Byte.SIZE) % Byte.SIZE] - lhs[(lotli - 5 + Byte.SIZE) % Byte.SIZE] + lhs[(lotli - 3 + Byte.SIZE) % Byte.SIZE] - lhs[(lotli - 1 + Byte.SIZE) % Byte.SIZE];
+        int QnPP = lhs[(lotli - 6 + Byte.SIZE) % Byte.SIZE] - lhs[(lotli - 4 + Byte.SIZE) % Byte.SIZE] + lhs[(lotli - 2 + Byte.SIZE) % Byte.SIZE] - lhs[lotli % Byte.SIZE];
 
         return (int) (Math.pow(InPP, 2) + Math.pow(QnPP, 2));
     }

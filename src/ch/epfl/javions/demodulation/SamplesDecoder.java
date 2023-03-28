@@ -16,6 +16,10 @@ public final class SamplesDecoder {
     private final int batchSize;
     private final byte[] samplesTable;
 
+    private static final int RECENTERING_NUMBER = 2048;
+
+    private static final int TWELVE_BITS_MASK = 0b111111111111;
+
     /**
      * Constructs a new SamplesDecoder that will read from the given stream and
      * decode the samples in batches of the given size.
@@ -48,10 +52,10 @@ public final class SamplesDecoder {
         int bytesRead = stream.readNBytes(samplesTable, 0, batchSize * 2);
 
         for (int i = 0; i < samplesTable.length; i += 2) {
-            int msb = Byte.toUnsignedInt(samplesTable[i + 1]) << 8;
+            int msb = Byte.toUnsignedInt(samplesTable[i + 1]) << Byte.SIZE;
             int lsb = Byte.toUnsignedInt(samplesTable[i]);
 
-            batch[i / 2] = (short) (((msb | lsb) & 0x0FFF) - 2048);
+            batch[i / 2] = (short) (((msb | lsb) & TWELVE_BITS_MASK) - RECENTERING_NUMBER);
         }
 
         return bytesRead / 2;

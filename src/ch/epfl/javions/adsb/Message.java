@@ -6,6 +6,7 @@ import ch.epfl.javions.aircraft.IcaoAddress;
  * Represents a message received from an aircraft.
  *
  * @author Kevan Lam (356395)
+ * @author Mateo Tiedra (356525)
  */
 public interface Message {
     /**
