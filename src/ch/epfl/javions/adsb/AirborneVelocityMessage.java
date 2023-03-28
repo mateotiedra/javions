@@ -102,7 +102,10 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         int dns = Bits.extractUInt(payload, V_SIZE, DIR_SIZE);
         int vns = Bits.extractUInt(payload, 0, V_SIZE) - 1;
 
-        double angle = Math.atan2(vew * dew, vns * dns);
+        double angle = Math.PI / 2 - Math.atan2(-vns * dns, vew * dew);
+        // recentre the angle between 0 and 2 * PI
+        angle = (angle + 2 * Math.PI) % 2 * Math.PI;
+
         double speed = Math.hypot(vns - 1, vew - 1) * (factorFour ? 4 : 1);
 
         return new Velocity(Units.convertFrom(speed, Units.Speed.KNOT), angle);
