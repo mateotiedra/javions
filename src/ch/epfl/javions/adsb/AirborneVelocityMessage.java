@@ -18,6 +18,9 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static final int ST_POS = 48;
     private static final int ST_SIZE = 3;
 
+    private static final int ENCODED_SPEED_POS = 21;
+    private static final int ENCODED_SPEED_SIZE = 22;
+
     private static final int V_SIZE = 10;
     private static final int DIR_SIZE = 1;
 
@@ -27,7 +30,7 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     private static final int HDG_SIZE = 10;
     private static final int AS_SIZE = 10;
 
-    private static final int ENCODED_AIR_SPEED_RATIO = 1 << 10;
+    private static final double ENCODED_AIR_SPEED_RATIO = 1 << 10;
 
 
     /**
@@ -54,18 +57,19 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     public static AirborneVelocityMessage of(RawMessage rawMessage) {
         long payload = rawMessage.payload();
         int st = Bits.extractUInt(payload, ST_POS, ST_SIZE);
+        long encodedSpeed = Bits.extractUInt(payload, ENCODED_SPEED_POS, ENCODED_SPEED_SIZE);
         Velocity velocity;
 
         try {
             if (st == 1 || st == 2) {
-                velocity = computeGroundSpeed(payload, st == 2);
+                velocity = computeGroundSpeed(encodedSpeed, st == 2);
             } else if (st == 3 || st == 4) {
-                velocity = computeAirSpeed(payload, st == 4);
+                velocity = computeAirSpeed(encodedSpeed, st == 4);
             } else {
                 return null;
             }
 
-            return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), velocity.speed, velocity.angle);
+            return new AirborneVelocityMessage(rawMessage.timeStampNs(), rawMessage.icaoAddress(), velocity.getSpeed(), velocity.getAngle());
         } catch (IllegalArgumentException e) {
             return null;
         }
@@ -74,19 +78,28 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
     /**
      * Represents a velocity.
      */
-    private record Velocity(double speed, double angle) {
+    private static class Velocity {
+        private final double angle;
+        private final double speed;
 
-        /**
-         * Constructs a Velocity.
-         *
-         * @param speed the speed of the aircraft in meters per second, must be greater than or equal to 0
-         * @param angle the angle between the direction and the north clockwise, in radians, must be greater than or equal to 0
-         */
-        public Velocity {
-            Preconditions.checkArgument(speed >= 0);
-            Preconditions.checkArgument(angle >= 0);
+        private Velocity(int vx, int vy) {
+            this(Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT), (Math.atan2(vy, vx) + Units.Angle.TURN) % Units.Angle.TURN);
         }
 
+        private Velocity(double speed, double angle) {
+            Preconditions.checkArgument(speed >= 0, "Speed must be positive");
+            Preconditions.checkArgument(angle >= 0, "Angle must be positive");
+            this.angle = angle;
+            this.speed = speed;
+        }
+
+        public double getSpeed() {
+            return speed;
+        }
+
+        public double getAngle() {
+            return angle;
+        }
     }
 
     /**
@@ -102,13 +115,11 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         int dns = Bits.extractUInt(payload, V_SIZE, DIR_SIZE);
         int vns = (Bits.extractUInt(payload, 0, V_SIZE) - 1);
 
-        double angle = Math.PI / 2 - Math.atan2(vns * (dns == 1 ? -1 : 1), vew * (dew == 1 ? -1 : 1));
-        // recentre the angle between 0 and 2 * PI
-        angle = (angle + 2 * Math.PI) % 2 * Math.PI;
+        int factor = factorFour ? 4 : 1;
 
-        double speed = Math.hypot(vns - 1, vew - 1) * (factorFour ? 4 : 1);
+        if (vns == -1 || vew == -1) throw new IllegalArgumentException();
 
-        return new Velocity(Units.convertFrom(speed, Units.Speed.KNOT), angle);
+        return new Velocity(vns * (dns == 1 ? -1 : 1) * factor, vew * (dew == 1 ? -1 : 1) * factor);
     }
 
     /**
@@ -120,12 +131,12 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      */
     private static Velocity computeAirSpeed(long payload, boolean factorFour) {
         int as = Bits.extractUInt(payload, 0, AS_SIZE);
-        int hdg = Bits.extractUInt(payload, HDG_POS, HDG_SIZE);
+        double hdg = Bits.extractUInt(payload, HDG_POS, HDG_SIZE);
         int sh = Bits.extractUInt(payload, SH_POSE, SH_SIZE);
 
-        int angle = sh == 1 ? hdg / ENCODED_AIR_SPEED_RATIO : 0;
         int speed = (as - 1) * (factorFour ? 4 : 1);
+        double angle = sh == 1 ? hdg / ENCODED_AIR_SPEED_RATIO : -1;
 
-        return new Velocity(Units.convertFrom(speed, Units.Speed.KNOT), angle);
+        return new Velocity(Units.convertFrom(speed, Units.Speed.KNOT), Units.convert(angle, Units.Angle.TURN, Units.Angle.RADIAN));
     }
 }
