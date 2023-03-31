@@ -9,33 +9,61 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class AircraftStateAccumulatorTest {
     @Test
-    public void test1() throws IOException {
+    void testConscrutor() {
+        assertThrows(NullPointerException.class, () -> new AircraftStateAccumulator<>(null));
+    }
+
+    @Test
+    public void testAccumulator() throws IOException {
         String f = "resources/samples_20230304_1442.bin";
-        IcaoAddress expectedAddress = new IcaoAddress("4D2228");
+        IcaoAddress expectedAddress = new IcaoAddress("3C6481");
         try (InputStream s = new FileInputStream(f)) {
             AdsbDemodulator d = new AdsbDemodulator(s);
             RawMessage m;
-            AircraftStateAccumulator<AircraftState> a =
-                    new AircraftStateAccumulator<>(new AircraftState());
+            AircraftStateAccumulator<AircraftState> a = new AircraftStateAccumulator<>(new AircraftState());
+
             while ((m = d.nextMessage()) != null) {
                 if (!m.icaoAddress().equals(expectedAddress)) continue;
                 Message pm = MessageParser.parse(m);
                 if (pm != null) a.update(pm);
             }
         }
+        String test1 = "8D39D300990CE72C70089058AD77";
+        byte[] bytes = hexStringToByteArray(test1);
+        RawMessage message = RawMessage.of(0, bytes);
+
+        Message parsedMessage = MessageParser.parse(message);
+
+        AircraftStateAccumulator<AircraftState> accumulator = new AircraftStateAccumulator<>(new AircraftState());
+        if (parsedMessage != null) {
+            accumulator.update(parsedMessage);
+        }
+
+    }
+
+    public static byte[] hexStringToByteArray(String s) {
+        int len = s.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                    + Character.digit(s.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     class AircraftState implements AircraftStateSetter {
         @Override
         public void setLastMessageTimeStampNs(long timeStampNs) {
-            System.out.println("timestamp : " + timeStampNs);
+            //System.out.println("timestamp : " + timeStampNs);
         }
 
         @Override
         public void setCategory(int category) {
-            System.out.println("category : " + category);
+            //System.out.println("category : " + category);
         }
 
         @Override

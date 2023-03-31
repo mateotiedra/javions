@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AirborneVelocityMessageTest {
     public static String fileName = Objects.requireNonNull(AirborneVelocityMessageTest.class.getResource("/samples_20230304_1442.bin")).getFile();
@@ -59,6 +59,15 @@ class AirborneVelocityMessageTest {
         RawMessage B = new RawMessage(0, ByteString.ofHexadecimalString("8D485020994409940838175B284F"));
         AirborneVelocityMessage a = AirborneVelocityMessage.of(B);
         String correctMessage = "AirborneVelocityMessage[timeStampNs=0, icaoAddress=IcaoAddress[string=485020], speed=81.90013721178154, trackOrHeading=3.1918647255875205]";
+        assertEquals(correctMessage, a.toString());
+    }
+
+    @Test
+    public void sousTypeQuatre() {
+        //#924
+        RawMessage B = new RawMessage(0, ByteString.ofHexadecimalString("8DA05F219C06B6AF189400CBC33F"));
+        AirborneVelocityMessage a = AirborneVelocityMessage.of(B);
+        String correctMessage = "AirborneVelocityMessage[timeStampNs=0, icaoAddress=IcaoAddress[string=A05F21], speed=771.6666666666667, trackOrHeading=4.25833066717054]";
         assertEquals(correctMessage, a.toString());
     }
 
@@ -214,7 +223,7 @@ class AirborneVelocityMessageTest {
                     "AirborneVelocityMessage[timeStampNs=7257254700, icaoAddress=IcaoAddress[string=4B17E5], speed=111.85233727696972, trackOrHeading=5.624965850065693]\n" +
                     "AirborneVelocityMessage[timeStampNs=7380502000, icaoAddress=IcaoAddress[string=01024C], speed=227.7292797502235, trackOrHeading=5.309789803459042]\n" +
                     "AirborneVelocityMessage[timeStampNs=7382974700, icaoAddress=IcaoAddress[string=4D0221], speed=97.14285924590205, trackOrHeading=0.8041225665717969]\n" +
-                    "AirborneVelocityMessage[timeStampNs=7400051800, icaoAddress=IcaoAddress[string=4D2228], speed=209.59113184813597, trackOrHeading=0.9194406912631904]\n" +
+                    "Airb§orneVelocityMessage[timeStampNs=7400051800, icaoAddress=IcaoAddress[string=4D2228], speed=209.59113184813597, trackOrHeading=0.9194406912631904]\n" +
                     "AirborneVelocityMessage[timeStampNs=7403217000, icaoAddress=IcaoAddress[string=39CEAA], speed=225.23620964623444, trackOrHeading=6.106396149174445]\n";
 
             String finalValues = "";
