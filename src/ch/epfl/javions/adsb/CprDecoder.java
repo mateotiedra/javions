@@ -41,25 +41,33 @@ public class CprDecoder {
             zphi0 = zphi;
             zphi1 = zphi;
         }
+
         double phi0 = majDeltaPhi0 * (zphi0 + y0);
         double phi1 = majDeltaPhi1 * (zphi1 + y1);
         phi0 = center(phi0);
         phi1 = center(phi1);
         double A_0, A_1;
+
         double argument_0 = 1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / (Math.pow((Math.cos(Units.convert(phi0, Units.Angle.TURN, Units.Angle.RADIAN))), 2)));
         double argument_1 = 1 - ((1 - Math.cos(2 * Math.PI * majDeltaPhi0)) / (Math.pow((Math.cos(Units.convert(phi1, Units.Angle.TURN, Units.Angle.RADIAN))), 2)));
+
         if (Double.isNaN(Math.acos(argument_0))) A_0 = 2 * Math.PI;
         else A_0 = Math.acos(argument_0);
+
         if (Double.isNaN(Math.acos(argument_1))) A_1 = 2 * Math.PI;
         else A_1 = Math.acos(argument_1);
+
         double Zlambda = Math.floor(2 * Math.PI / A_1);
         double Zlambda0 = Math.floor(2 * Math.PI / A_0);
+
         if (Zlambda != Zlambda0) return null;
+
         double Zlambda1 = Zlambda0 - 1;
         double zdelta = Math.rint(x0 * Zlambda1 - x1 * Zlambda0);
         double zdelta0, zdelta1, delta0 = 0, delta1 = 0;
         double majDeltaLambda0 = 1.0 / Zlambda0;
         double majDeltaLambda1 = 1.0 / Zlambda1;
+
         if (Zlambda0 == 1) {
             delta0 = x0;
             delta1 = x1;
@@ -74,6 +82,7 @@ public class CprDecoder {
             delta0 = majDeltaLambda0 * (zdelta0 + x0);
             delta1 = majDeltaLambda1 * (zdelta1 + x1);
         }
+        
         delta0 = center(delta0);
         delta1 = center(delta1);
         phi0 = Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32);

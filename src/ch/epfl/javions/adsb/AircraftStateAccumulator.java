@@ -12,8 +12,8 @@ import java.util.Objects;
 public class AircraftStateAccumulator<T extends AircraftStateSetter> {
     private final T t;
 
-    private Message previousMessage;
-    private int parity;
+    private AirbornePositionMessage previousMessageEven;
+    private AirbornePositionMessage previousMessageOdd;
 
     /**
      * Constructs an AircraftStateAccumulator with the given state setter.
@@ -39,7 +39,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      * @param message the message to use to update the state.
      */
     public void update(Message message) {
-        updateParity();
 
         switch (message) {
             case AircraftIdentificationMessage aim -> {
@@ -48,7 +47,11 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
             }
             case AirbornePositionMessage apm -> {
                 t.setAltitude(apm.altitude());
-                // TODO: set position
+                if (apm.parity() == 0 && (apm.timeStampNs() - previousMessageOdd.timeStampNs()) <= 1000000000) {
+                    t.setPosition(CprDecoder.decodePosition(apm.x(), apm.y(), previousMessageOdd.x(), previousMessageOdd.y(), apm.parity()));
+                } else if (apm.timeStampNs() - previousMessageEven.timeStampNs() <= 1000000000) {
+                    t.setPosition(CprDecoder.decodePosition(previousMessageEven.x(), previousMessageEven.y(), apm.x(), apm.y(), apm.parity()));
+                }
             }
             case AirborneVelocityMessage avm -> {
                 t.setVelocity(avm.speed());
@@ -60,16 +63,6 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
         updateLastMessage(message);
     }
 
-
-    // PAS SUR QUE CE SOIT UTILE à PARTIR D'ICI
-
-    /**
-     * Update the parity, 0 becoes 1 and 1 becomes 0.
-     */
-    private void updateParity() {
-        parity = (parity + 1) % 2;
-    }
-
     /**
      * Save the actual message which will become the previous message.
      *
@@ -77,6 +70,16 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
      */
     private void updateLastMessage(Message message) {
         t.setLastMessageTimeStampNs(message.timeStampNs());
-        previousMessage = message;
+        switch (message) {
+            case AirbornePositionMessage apm -> {
+                if (apm.parity() == 0) {
+                    previousMessageEven = apm;
+                } else {
+                    previousMessageOdd = apm;
+                }
+            }
+            default -> {
+            }
+        }
     }
 }
