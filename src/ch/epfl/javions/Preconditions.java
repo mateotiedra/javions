@@ -19,4 +19,12 @@ public final class Preconditions {
     public static void checkArgument(boolean shouldBeTrue) {
         if (!shouldBeTrue) throw new IllegalArgumentException();
     }
+
+    public static void checkArgument(boolean shouldBeTrue, String message) {
+
+        if (!shouldBeTrue) {
+            System.out.println(message);
+            throw new IllegalArgumentException();
+        }
+    }
 }
