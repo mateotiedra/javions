@@ -82,10 +82,22 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
         private final double angle;
         private final double speed;
 
+        /**
+         * Constructs a velocity.
+         *
+         * @param vx the x component of the velocity
+         * @param vy the y component of the velocity
+         */
         private Velocity(int vx, int vy) {
             this(Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT), (Math.atan2(vy, vx) + Units.Angle.TURN) % Units.Angle.TURN);
         }
 
+        /**
+         * Constructs a velocity.
+         *
+         * @param speed the speed of the velocity
+         * @param angle the angle of the velocity
+         */
         private Velocity(double speed, double angle) {
             Preconditions.checkArgument(speed >= 0, "Speed must be positive");
             Preconditions.checkArgument(angle >= 0, "Angle must be positive");
@@ -93,10 +105,20 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
             this.speed = speed;
         }
 
+        /**
+         * Returns the speed of the velocity.
+         *
+         * @return the speed of the velocity
+         */
         public double getSpeed() {
             return speed;
         }
 
+        /**
+         * Returns the angle of the velocity.
+         *
+         * @return the angle of the velocity
+         */
         public double getAngle() {
             return angle;
         }
