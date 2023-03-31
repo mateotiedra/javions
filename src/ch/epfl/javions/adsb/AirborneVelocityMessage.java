@@ -89,7 +89,8 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
          * @param vy the y component of the velocity
          */
         private Velocity(int vx, int vy) {
-            this(Units.convertFrom(Math.hypot(vx, vy), Units.Speed.KNOT), (Math.atan2(vy, vx) + Units.Angle.TURN) % Units.Angle.TURN);
+            this(Units.convertFrom(Math.hypot(vx, vy),
+                    Units.Speed.KNOT), Math.atan2(vy, vx) < 0 ? Math.atan2(vy, vx) + 2 * Math.PI : Math.atan2(vy, vx));
         }
 
         /**

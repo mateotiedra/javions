@@ -215,7 +215,7 @@ class AirborneVelocityMessageTest {
                     "AirborneVelocityMessage[timeStampNs=7380502000, icaoAddress=IcaoAddress[string=01024C], speed=227.7292797502235, trackOrHeading=5.309789803459042]\n" +
                     "AirborneVelocityMessage[timeStampNs=7382974700, icaoAddress=IcaoAddress[string=4D0221], speed=97.14285924590205, trackOrHeading=0.8041225665717969]\n" +
                     "AirborneVelocityMessage[timeStampNs=7400051800, icaoAddress=IcaoAddress[string=4D2228], speed=209.59113184813597, trackOrHeading=0.9194406912631904]\n" +
-                    "AirborneVelocityMessage[timeStampNs=7403217000, icaoAddress=IcaoAddress[string=39CEAA], speed=225.23620964623444, trackOrHeading=6.106396149174445]";
+                    "AirborneVelocityMessage[timeStampNs=7403217000, icaoAddress=IcaoAddress[string=39CEAA], speed=225.23620964623444, trackOrHeading=6.106396149174445]\n";
 
             String finalValues = "";
             int i = 0;
