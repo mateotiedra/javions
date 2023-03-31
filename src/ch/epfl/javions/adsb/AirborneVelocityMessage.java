@@ -98,11 +98,11 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
      */
     private static Velocity computeGroundSpeed(long payload, boolean factorFour) {
         int dew = Bits.extractUInt(payload, V_SIZE + DIR_SIZE + V_SIZE, DIR_SIZE);
-        int vew = Bits.extractUInt(payload, V_SIZE + DIR_SIZE, V_SIZE) - 1;
+        int vew = (Bits.extractUInt(payload, V_SIZE + DIR_SIZE, V_SIZE) - 1);
         int dns = Bits.extractUInt(payload, V_SIZE, DIR_SIZE);
-        int vns = Bits.extractUInt(payload, 0, V_SIZE) - 1;
+        int vns = (Bits.extractUInt(payload, 0, V_SIZE) - 1);
 
-        double angle = Math.PI / 2 - Math.atan2(-vns * dns, vew * dew);
+        double angle = Math.PI / 2 - Math.atan2(vns * (dns == 1 ? -1 : 1), vew * (dew == 1 ? -1 : 1));
         // recentre the angle between 0 and 2 * PI
         angle = (angle + 2 * Math.PI) % 2 * Math.PI;
 
