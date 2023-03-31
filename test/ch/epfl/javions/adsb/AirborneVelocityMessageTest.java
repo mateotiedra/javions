@@ -72,6 +72,15 @@ class AirborneVelocityMessageTest {
     }
 
     @Test
+    void worksForMessageA() {
+        String msgA = "8D485020994409940838175B284F";
+        AirborneVelocityMessage decodedmsgA = AirborneVelocityMessage.of(new RawMessage(10, ByteString.ofHexadecimalString(msgA)));
+
+        assertEquals(159.20, Units.convertTo(decodedmsgA.speed(), Units.Speed.KNOT), 0.005);
+        assertEquals(182.88, Units.convertTo(decodedmsgA.trackOrHeading(), Units.Angle.DEGREE), 0.005);
+    }
+
+    @Test
     public void testRandomCommeLesFrroSurEd() throws IOException {
 
         try (InputStream s = new FileInputStream(fileName)) {
