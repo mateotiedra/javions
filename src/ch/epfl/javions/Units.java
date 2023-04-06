@@ -1,18 +1,26 @@
 package ch.epfl.javions;
 
 /**
- * A utility class for unit conversions.
+ * A utility class for unit conversions. And constants for units.
  *
  * @author Kevan Lam (356395)
- * @author Mateo Tiedra (356525)
  **/
 public final class Units {
     private Units() {
     }
 
+    /**
+     * Centi tools for unit conversions.
+     */
     public static final double CENTI = 1e-2;
+    /**
+     * Kilo tools for unit conversions.
+     */
     public static final double KILO = 1e3;
 
+    /**
+     * Units for angles.
+     */
     public static class Angle {
         private Angle() {
         }
@@ -23,6 +31,9 @@ public final class Units {
         public static final double T32 = Math.scalb(TURN, -32);
     }
 
+    /**
+     * Units for lengths.
+     */
     public static class Length {
         private Length() {
         }
@@ -35,6 +46,9 @@ public final class Units {
         public static final double NAUTICAL_MILE = 1852 * METER;
     }
 
+    /**
+     * Units for times.
+     */
     public static class Time {
         private Time() {
         }
@@ -44,6 +58,9 @@ public final class Units {
         public static final double HOUR = 60 * MINUTE;
     }
 
+    /**
+     * Units for speeds.
+     */
     public static class Speed {
         private Speed() {
         }

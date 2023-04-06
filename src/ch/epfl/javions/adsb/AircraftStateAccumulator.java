@@ -14,7 +14,7 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
 
     private AirbornePositionMessage previousMessageEven;
     private AirbornePositionMessage previousMessageOdd;
-    private final static long TIME_LIMIT = 10000000000L;
+    private final static long TIME_LIMIT = 10_000_000_000L;
 
     /**
      * Constructs an AircraftStateAccumulator with the given state setter.
@@ -49,9 +49,13 @@ public class AircraftStateAccumulator<T extends AircraftStateSetter> {
             case AirbornePositionMessage apm -> {
                 t.setAltitude(apm.altitude());
 
-                if (previousMessageOdd != null && apm.parity() == 0 && ((apm.timeStampNs() - previousMessageOdd.timeStampNs()) <= TIME_LIMIT)) {
+                if (previousMessageOdd != null && apm.parity() == 0
+                        && ((apm.timeStampNs() - previousMessageOdd.timeStampNs()) <= TIME_LIMIT)
+                        && CprDecoder.decodePosition(apm.x(), apm.y(), previousMessageOdd.x(), previousMessageOdd.y(), apm.parity()) != null) {
                     t.setPosition(CprDecoder.decodePosition(apm.x(), apm.y(), previousMessageOdd.x(), previousMessageOdd.y(), apm.parity()));
-                } else if (previousMessageEven != null && apm.parity() == 1 && (apm.timeStampNs() - previousMessageEven.timeStampNs()) <= TIME_LIMIT) {
+                } else if (previousMessageEven != null && apm.parity() == 1
+                        && (apm.timeStampNs() - previousMessageEven.timeStampNs()) <= TIME_LIMIT
+                        && CprDecoder.decodePosition(previousMessageEven.x(), previousMessageEven.y(), apm.x(), apm.y(), apm.parity()) != null) {
                     t.setPosition(CprDecoder.decodePosition(previousMessageEven.x(), previousMessageEven.y(), apm.x(), apm.y(), apm.parity()));
                 }
             }
