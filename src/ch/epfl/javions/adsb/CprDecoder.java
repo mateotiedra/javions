@@ -19,7 +19,10 @@ public class CprDecoder {
     }
 
     /**
-     * Decodes the CPR encoded position.
+     * Decodes the CPR encoded position and return the position of the aircraft (precision ~5 meters).
+     * We need 2 positions for this method to work.
+     * We also need to know which position is the most recent, if it was on an odd position or an even position (0 or 1).
+     * The most recent position is the one that was received last.
      *
      * @param x0         The longitude of the first position.
      * @param y0         The latitude of the first position.
@@ -82,7 +85,7 @@ public class CprDecoder {
             delta0 = majDeltaLambda0 * (zdelta0 + x0);
             delta1 = majDeltaLambda1 * (zdelta1 + x1);
         }
-        
+
         delta0 = center(delta0);
         delta1 = center(delta1);
         phi0 = Units.convert(phi0, Units.Angle.TURN, Units.Angle.T32);

@@ -12,6 +12,7 @@ import java.util.Objects;
  * A message containing the position of an aircraft.
  *
  * @author Mateo Tiedra (356525)
+ * @author Kevan Lam (356395)
  */
 
 public record AirbornePositionMessage(long timeStampNs, IcaoAddress icaoAddress, double altitude, int parity, double x,
