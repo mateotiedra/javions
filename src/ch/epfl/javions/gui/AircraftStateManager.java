@@ -56,7 +56,7 @@ public class AircraftStateManager {
 
     public void purge() {
         aircraftWithKnownPositionStates.removeIf(
-                observableAircraftState -> (lastMessageTimeStampNs - observableAircraftState.getLastMessageTimeStampNs()) < oneMinuteInNs
+                observableAircraftState -> (lastMessageTimeStampNs - observableAircraftState.getLastMessageTimeStampNs()) > oneMinuteInNs
         );
     }
 }
