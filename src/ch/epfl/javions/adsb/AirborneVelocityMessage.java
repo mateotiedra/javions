@@ -100,8 +100,8 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
          * @param angle the angle of the velocity
          */
         private Velocity(double speed, double angle) {
-            Preconditions.checkArgument(speed >= 0, "Speed must be positive");
-            Preconditions.checkArgument(angle >= 0, "Angle must be positive");
+            Preconditions.checkArgument(speed >= 0);
+            Preconditions.checkArgument(angle >= 0);
             this.angle = angle;
             this.speed = speed;
         }

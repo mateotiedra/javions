@@ -14,7 +14,6 @@ public final class AdsbDemodulator {
     private final PowerWindow window;
 
     private static final int WINDOW_SIZE = 1200;
-    private static final int[] MULTIPLE_OF_10 = initMultipleOf10(120);
     private static final int TENTH_OF_MICRO_TO_NANO = 100;
 
     public AdsbDemodulator(InputStream samplesStream) throws IOException {
@@ -29,8 +28,10 @@ public final class AdsbDemodulator {
      */
     public RawMessage nextMessage() throws IOException {
         int lastSp;
-        int sp = computeSp(window);
+        int sp = computeSp(window, 0);
         int nextSp = computeSp(window, 1);
+
+        byte[] messageBytes = new byte[RawMessage.LENGTH];
 
         RawMessage nextMessage;
 
@@ -46,7 +47,8 @@ public final class AdsbDemodulator {
 
             } while (!(sp > lastSp && sp > nextSp && sp >= 2 * computeSv(window)));
 
-            nextMessage = RawMessage.of(window.position() * TENTH_OF_MICRO_TO_NANO, extractMessageBytes(window));
+            extractMessageBytes(window, messageBytes);
+            nextMessage = RawMessage.of(window.position() * TENTH_OF_MICRO_TO_NANO, messageBytes);
         } while (!(nextMessage != null && nextMessage.downLinkFormat() == RawMessage.EXPECTED_FORMAT));
 
         window.advanceBy(WINDOW_SIZE);
@@ -57,25 +59,22 @@ public final class AdsbDemodulator {
     /**
      * This method extracts the message bytes from the power window (2.3.3).
      *
-     * @param window the power window
-     * @return the bytes containing the message
+     * @param window       the power
+     * @param messageBytes the array to store the message bytes in
      */
-    private static byte[] extractMessageBytes(PowerWindow window) {
-        byte[] messageBytes = new byte[RawMessage.LENGTH];
+    private void extractMessageBytes(PowerWindow window, byte[] messageBytes) {
         int newByte;
         int sampleIndex;
 
         for (int i = 0; i < RawMessage.LENGTH; ++i) {
             newByte = 0;
             for (int j = 0; j < Byte.SIZE; ++j) {
-                sampleIndex = MULTIPLE_OF_10[(i << 3) + j];
+                sampleIndex = ((i << 3) + j) * 10;
                 int bit = window.get(80 + sampleIndex) < window.get(85 + sampleIndex) ? 0 : 1;
                 newByte = newByte | (bit << (7 - j));
             }
             messageBytes[i] = (byte) (newByte);
         }
-
-        return messageBytes;
     }
 
     /**
@@ -85,18 +84,8 @@ public final class AdsbDemodulator {
      * @param offset the offset of the window
      * @return the sum of the power of the samples in the window
      */
-    private static int computeSp(PowerWindow window, int offset) {
+    private int computeSp(PowerWindow window, int offset) {
         return window.get(offset) + window.get(offset + 10) + window.get(offset + 35) + window.get(offset + 45);
-    }
-
-    /**
-     * This method computes the sum p using the first formula (2.3.1).
-     *
-     * @param window the power window
-     * @return the sum of the power of the samples in the window
-     */
-    private static int computeSp(PowerWindow window) {
-        return window.get(0) + window.get(10) + window.get(35) + window.get(45);
     }
 
     /**
@@ -105,16 +94,8 @@ public final class AdsbDemodulator {
      * @param window the power window
      * @return the sum of the power of the samples in the window
      */
-    private static int computeSv(PowerWindow window) {
+    private int computeSv(PowerWindow window) {
         return window.get(5) + window.get(15) + window.get(20) + window.get(25) + window.get(30) + window.get(40);
     }
 
-    private static int[] initMultipleOf10(int nbrOfMultiple) {
-        int[] table = new int[nbrOfMultiple];
-        for (int i = 0; i < nbrOfMultiple; ++i) {
-            table[i] = i * 10;
-        }
-
-        return table;
-    }
 }
