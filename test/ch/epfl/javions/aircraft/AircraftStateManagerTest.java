@@ -77,8 +77,8 @@ public class AircraftStateManagerTest {
             latitude = Units.convert(latitude, Units.Angle.RADIAN, Units.Angle.DEGREE);
             double speed = state.getVelocity();
             String direction = getDirectionArrow(state.getTrackOrHeading());
-            System.out.printf("%-6s  %-9s %-6s  %-6s  %.7s  %.5s  %.3s  %.1s\n",
-                    icao, callsign, registration, model, longitude, latitude, altitude, speed, direction);
+            System.out.printf("%-6s  %-9s %-6s  %-6s  %.7s  %.5s  %.5s %.3s \n",
+                    icao, callsign, registration, model, longitude, latitude, altitude, speed);
 
         }
     }

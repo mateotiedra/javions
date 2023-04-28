@@ -13,7 +13,8 @@ import java.util.Objects;
  *
  * @author Mateo Tiedra (356525)
  */
-public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed, double trackOrHeading) implements Message {
+public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress, double speed,
+                                      double trackOrHeading) implements Message {
 
     private static final int ST_POS = 48;
     private static final int ST_SIZE = 3;
@@ -100,8 +101,8 @@ public record AirborneVelocityMessage(long timeStampNs, IcaoAddress icaoAddress,
          * @param angle the angle of the velocity
          */
         private Velocity(double speed, double angle) {
-            Preconditions.checkArgument(speed >= 0, "Speed must be positive");
-            Preconditions.checkArgument(angle >= 0, "Angle must be positive");
+            Preconditions.checkArgument(speed >= 0);
+            Preconditions.checkArgument(angle >= 0);
             this.angle = angle;
             this.speed = speed;
         }

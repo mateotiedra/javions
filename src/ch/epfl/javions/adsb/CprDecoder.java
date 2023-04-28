@@ -64,7 +64,7 @@ public class CprDecoder {
         double Zlambda0 = Math.floor(2 * Math.PI / A_0);
 
         if (Zlambda != Zlambda0) return null;
-
+//TODO: Latitude not check two
         double Zlambda1 = Zlambda0 - 1;
         double zdelta = Math.rint(x0 * Zlambda1 - x1 * Zlambda0);
         double zdelta0, zdelta1, delta0 = 0, delta1 = 0;
