@@ -4,8 +4,6 @@ import ch.epfl.javions.Bits;
 import ch.epfl.javions.Preconditions;
 import ch.epfl.javions.aircraft.IcaoAddress;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -16,9 +14,7 @@ import java.util.Objects;
 public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAddress, int category,
                                             CallSign callSign) implements Message {
 
-    private static final String[] REPRESENTATION_TABLE = buildRepresentationTable();
-    private static final int NUMBER_STARTING_POS = 48;
-    private static final int SPACE_POS = 32;
+    private static final String REPRESENTATION_TABLE = "*ABCDEFGHIJKLMNOPQRSTUVWXYZ***** ***************0123456789";
 
     private static final int ENCODED_CHAR_SIZE = 6;
 
@@ -68,43 +64,18 @@ public record AircraftIdentificationMessage(long timeStampNs, IcaoAddress icaoAd
      * @return the call sign of the aircraft
      */
     private static CallSign getCallSign(long payload) {
-        String callSignString = "";
+        StringBuilder callSignString = new StringBuilder();
+        boolean firstLetterOk;
         for (int i = 0; i < Byte.SIZE; ++i) {
             int charIndex = Bits.extractUInt(payload, ENCODED_CHAR_SIZE * i, ENCODED_CHAR_SIZE);
-            String newChar = charIndex >= REPRESENTATION_TABLE.length ? null : REPRESENTATION_TABLE[charIndex];
-            if (newChar != null) {
-                callSignString = newChar + callSignString;
+            String newChar = charIndex >= REPRESENTATION_TABLE.length() ? "*" : String.valueOf(REPRESENTATION_TABLE.charAt(charIndex));
+            if (!newChar.equals("*")) {
+                firstLetterOk = !newChar.equals(" ");
+                callSignString.append(firstLetterOk ? newChar : "");
             } else {
                 return null;
             }
         }
-        return new CallSign(callSignString.trim());
-    }
-
-    /**
-     * Build the representation table.
-     *
-     * @return the representation table
-     */
-    private static String[] buildRepresentationTable() {
-        List<String> table = new ArrayList<>();
-
-        table.add(null);
-
-        for (char c = 'A'; c <= 'Z'; c++) {
-            table.add(String.valueOf(c));
-        }
-
-        while (table.size() < NUMBER_STARTING_POS) {
-            table.add(null);
-        }
-
-        for (int i = 0; i < 10; i++) {
-            table.add(String.valueOf(i));
-        }
-
-        table.set(SPACE_POS, " ");
-
-        return table.toArray(new String[0]);
+        return new CallSign(callSignString.reverse().toString());
     }
 }
