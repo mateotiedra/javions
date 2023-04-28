@@ -79,7 +79,6 @@ public final class Units {
      * @throws IllegalArgumentException if either fromUnit or toUnit is zero.
      **/
     public static double convert(double value, double fromUnit, double toUnit) {
-        Preconditions.checkArgument(fromUnit != 0 && toUnit != 0);
         return value * (fromUnit / toUnit);
     }
 
@@ -93,7 +92,6 @@ public final class Units {
      * @throws IllegalArgumentException if fromUnit is zero.
      **/
     public static double convertFrom(double value, double fromUnit) {
-        Preconditions.checkArgument(fromUnit != 0);
         return convert(value, fromUnit, 1);
     }
 
@@ -106,7 +104,6 @@ public final class Units {
      * @throws IllegalArgumentException if toUnit is zero.
      **/
     public static double convertTo(double value, double toUnit) {
-        Preconditions.checkArgument(toUnit != 0);
         return convert(value, 1, toUnit);
     }
 }

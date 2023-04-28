@@ -13,12 +13,13 @@ import java.io.InputStream;
 public final class PowerWindow {
     private final PowerComputer powerComputer;
     private boolean ArrayB = false;
-    private final int batchsize = 1 << 16;
+    private final static int batchsize = 1 << 16;
     private int batch;
     private final int windowSize;
     private long position = 0;
     private final int[] batchA = new int[batchsize];
     private final int[] batchB = new int[batchsize];
+
     /**
      * Constructor of the PowerWindow
      *
@@ -32,16 +33,29 @@ public final class PowerWindow {
         batch = powerComputer.readBatch(batchA);
     }
 
-    // Get size
+    /**
+     * This method returns the size of the window.
+     *
+     * @return the size of the window
+     */
     public int size() {
         return windowSize;
     }
 
-    // Get position
+    /**
+     * This method returns the position of the window.
+     *
+     * @return the position of the window
+     */
     public long position() {
         return position;
     }
 
+    /**
+     * This method checks if the window is full.
+     *
+     * @return true if the window is full, false otherwise
+     */
     public boolean isFull() {
         return position + windowSize <= batch;
     }
@@ -49,6 +63,7 @@ public final class PowerWindow {
     /**
      * This method reads a batch of samples and computes the power of the samples.
      *
+     * @param i the index of the sample
      * @return the number of power samples written in the batch
      * @throws IndexOutOfBoundsException if an I/O error occurs
      */
@@ -80,7 +95,12 @@ public final class PowerWindow {
         }
     }
 
-    // Advance by offset
+    /**
+     * This method reads a batch of samples and computes the power of the samples.
+     *
+     * @param offset the offset of the sample
+     * @throws IOException if an I/O error occurs
+     */
     public void advanceBy(int offset) throws IOException {
         Preconditions.checkArgument(offset >= 0);
         while (offset > 0) {
