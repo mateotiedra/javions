@@ -1,6 +1,7 @@
 package ch.epfl.javions.aircraft;
 
 import ch.epfl.javions.ByteString;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -23,7 +24,7 @@ public class AircraftStateManagerTest {
             byte[] bytes = new byte[RawMessage.LENGTH];
             System.out.println("OACI    Indicatif Immat.  Modèle             Longitude   Latitude   Alt.  Vit.");
             System.out.println("――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――");
-            AircraftStateManager aircraftStateManager = new AircraftStateManager(new AircraftDatabase("resources/messages_20230318_0915.bin"));
+            AircraftStateManager aircraftStateManager = new AircraftStateManager(new AircraftDatabase("resources/aircraft.zip"));
             Set<ObservableAircraftState> aircraft;
             while (true) {
                 long timeStampNs = dataInputStream.readLong();
@@ -58,21 +59,28 @@ public class AircraftStateManagerTest {
     }
 
     private static void printAircraftTable(Set<ObservableAircraftState> aircraft) {
-        final char[] directions = new char[]{'↑', '↗', '→', '↘', '↓', '↙', '←', '↖'};
         for (ObservableAircraftState state : aircraft) {
+            String callsign = "";
+            String registration = "";
+            String model = "";
             String icao = state.getIcaoAddress().string();
-            String callsign = state.getCallsign().string();
-            String registration = state.getAircraftData().registration().string();
-            String model = state.getAircraftData().model();
+            if (state.getCallsign() != null)
+                callsign = state.getCallsign().string();
+            if (state.getAircraftData() != null) {
+                registration = state.getAircraftData().registration().string();
+                model = state.getAircraftData().model();
+            }
             double longitude = state.getPosition().longitude();
             double latitude = state.getPosition().latitude();
             double altitude = state.getAltitude();
+            longitude = Units.convert(longitude, Units.Angle.RADIAN, Units.Angle.DEGREE);
+            latitude = Units.convert(latitude, Units.Angle.RADIAN, Units.Angle.DEGREE);
             double speed = state.getVelocity();
             String direction = getDirectionArrow(state.getTrackOrHeading());
-            System.out.printf("%-6s  %-9s %-6s  %-18s  %9s  %9s  %5s  %3s\n",
+            System.out.printf("%-6s  %-9s %-6s  %-6s  %.7s  %.5s  %.3s  %.1s\n",
                     icao, callsign, registration, model, longitude, latitude, altitude, speed, direction);
+
         }
-        System.out.println();
     }
 
     private static String getDirectionArrow(double degrees) {

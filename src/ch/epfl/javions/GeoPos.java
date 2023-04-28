@@ -7,6 +7,8 @@ package ch.epfl.javions;
  * @author Mateo Tiedra (356525)
  **/
 public record GeoPos(int longitudeT32, int latitudeT32) {
+    private static final int MAX_LATITUDE_T32 = 1 << 30;
+
     /**
      * Constructs a new GeoPos object.
      *
@@ -25,7 +27,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @return true if the given value is a valid T32 latitude value.
      */
     public static boolean isValidLatitudeT32(int latitudeT32) {
-        return (latitudeT32 >= -(1 << 30)) && (latitudeT32 <= 1 << 30);
+        return (latitudeT32 >= -(MAX_LATITUDE_T32)) && (latitudeT32 <= MAX_LATITUDE_T32);
     }
 
     /**

@@ -35,7 +35,9 @@ public final class AircraftDatabase {
             while ((l = b.readLine()) != null) {
                 if (l.startsWith(address.string())) {
                     String[] aircraftString = l.split(",", -1);
-                    return new AircraftData(new AircraftRegistration(aircraftString[1]), new AircraftTypeDesignator(aircraftString[2]), aircraftString[3], new AircraftDescription(aircraftString[4]), WakeTurbulenceCategory.of(aircraftString[5]));
+                    return new AircraftData(new AircraftRegistration(aircraftString[1]),
+                            new AircraftTypeDesignator(aircraftString[2]), aircraftString[3],
+                            new AircraftDescription(aircraftString[4]), WakeTurbulenceCategory.of(aircraftString[5]));
                 }
             }
         }
