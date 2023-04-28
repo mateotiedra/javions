@@ -9,7 +9,7 @@ import static java.util.Objects.checkIndex;
  * @author Kevan Lam (356395)
  * @author Mateo Tiedra (356525)
  */
-public class Bits {
+public final class Bits {
     private Bits() {
     }
 
@@ -29,8 +29,7 @@ public class Bits {
      *                                   negative or greater than Long.SIZE.
      */
     public static int extractUInt(long value, int start, int size) {
-        Preconditions.checkArgument(size > 0 && size < 32);
-        checkIndex(start, Long.SIZE);
+        Preconditions.checkArgument(size > 0 && size < Integer.SIZE);
         checkFromIndexSize(start, size, Long.SIZE);
 
         return (int) ((value >>> start) & (1L << size) - 1);
