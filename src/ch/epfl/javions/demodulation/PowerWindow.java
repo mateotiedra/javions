@@ -13,12 +13,12 @@ import java.io.InputStream;
 public final class PowerWindow {
     private final PowerComputer powerComputer;
     private boolean ArrayB = false;
-    private final static int batchsize = 1 << 16;
+    private final static int BATCH_SIZE = 1 << 16;
     private int batch;
     private final int windowSize;
     private long position = 0;
-    private final int[] batchA = new int[batchsize];
-    private final int[] batchB = new int[batchsize];
+    private final int[] batchA = new int[BATCH_SIZE];
+    private final int[] batchB = new int[BATCH_SIZE];
 
     /**
      * Constructor of the PowerWindow
@@ -27,8 +27,8 @@ public final class PowerWindow {
      * @param windowSize the size of the batch
      */
     public PowerWindow(InputStream stream, int windowSize) throws IOException {
-        Preconditions.checkArgument(windowSize > 0 && windowSize <= batchsize);
-        this.powerComputer = new PowerComputer(stream, batchsize);
+        Preconditions.checkArgument(windowSize > 0 && windowSize <= BATCH_SIZE);
+        this.powerComputer = new PowerComputer(stream, BATCH_SIZE);
         this.windowSize = windowSize;
         batch = powerComputer.readBatch(batchA);
     }
@@ -72,10 +72,10 @@ public final class PowerWindow {
             throw new IndexOutOfBoundsException("Index invalide :" + i);
         }
 
-        if ((position % batchsize + i) >= batchsize) {
-            return batchB[(int) (position % batchsize + i - batchsize)];
+        if ((position % BATCH_SIZE + i) >= BATCH_SIZE) {
+            return batchB[(int) (position % BATCH_SIZE + i - BATCH_SIZE)];
         } else {
-            return batchA[(int) (position % batchsize + i)];
+            return batchA[(int) (position % BATCH_SIZE + i)];
         }
     }
 
@@ -86,11 +86,11 @@ public final class PowerWindow {
      */
     public void advance() throws IOException {
         ++position;
-        if ((position % batchsize) + windowSize >= batchsize && !ArrayB) {
+        if ((position % BATCH_SIZE) + windowSize >= BATCH_SIZE && !ArrayB) {
             batch += powerComputer.readBatch(batchB);
             ArrayB = true;
-        } else if (position % batchsize == 0 && position != 0) {
-            System.arraycopy(batchB, 0, batchA, 0, batchsize);
+        } else if (position % BATCH_SIZE == 0 && position != 0) {
+            System.arraycopy(batchB, 0, batchA, 0, BATCH_SIZE);
             ArrayB = false;
         }
     }
