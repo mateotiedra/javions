@@ -35,10 +35,8 @@ public record RawMessage(long timeStampNs, ByteString bytes) {
      */
     public static RawMessage of(long timeStampNs, byte[] bytes) {
         Crc24 crc24 = new Crc24(Crc24.GENERATOR);
-        if (crc24.crc(bytes) == 0) {
-            return new RawMessage(timeStampNs, new ByteString(bytes));
-        }
-        return null;
+
+        return (crc24.crc(bytes) == 0) ? new RawMessage(timeStampNs, new ByteString(bytes)) : null;
     }
 
     /**
