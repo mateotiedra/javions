@@ -7,7 +7,7 @@ package ch.epfl.javions;
  * @author Mateo Tiedra (356525)
  **/
 public record GeoPos(int longitudeT32, int latitudeT32) {
-    private static final int MAX_LATITUDE_T32 = 1 << 30;
+    private static final int LATITUDE_T32 = 1 << 30;
 
     /**
      * Constructs a new GeoPos object.
@@ -27,7 +27,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @return true if the given value is a valid T32 latitude value.
      */
     public static boolean isValidLatitudeT32(int latitudeT32) {
-        return (latitudeT32 >= -(MAX_LATITUDE_T32)) && (latitudeT32 <= MAX_LATITUDE_T32);
+        return (-(LATITUDE_T32) <= latitudeT32) && (latitudeT32 <= LATITUDE_T32);
     }
 
     /**
@@ -36,7 +36,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @return The longitude in radians.
      */
     public double longitude() {
-        return Units.convert(longitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+        return Units.convertFrom(longitudeT32, Units.Angle.T32);
     }
 
     /**
@@ -45,7 +45,7 @@ public record GeoPos(int longitudeT32, int latitudeT32) {
      * @return The latitude in radians.
      */
     public double latitude() {
-        return Units.convert(latitudeT32, Units.Angle.T32, Units.Angle.RADIAN);
+        return Units.convertFrom(latitudeT32, Units.Angle.T32);
     }
 
     /**

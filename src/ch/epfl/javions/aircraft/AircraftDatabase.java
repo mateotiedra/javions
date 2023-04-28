@@ -32,7 +32,7 @@ public final class AircraftDatabase {
              Reader r = new InputStreamReader(s, UTF_8);
              BufferedReader b = new BufferedReader(r)) {
             String l;
-            while ((l = b.readLine()) != null) {
+            while ((l = b.readLine()) != null && l.substring(0, 6).compareTo(address.string()) <= 0) {
                 if (l.startsWith(address.string())) {
                     String[] aircraftString = l.split(",", -1);
                     return new AircraftData(new AircraftRegistration(aircraftString[1]),
