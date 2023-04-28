@@ -11,10 +11,12 @@ import static java.util.Objects.checkFromToIndex;
  * @author Kevan Lam (356395)
  * @author Mateo Tiedra (356525)
  */
-public class ByteString {
-    byte[] bytes;
+public final class ByteString {
+    private final byte[] bytes;
 
-    private static final int oneByteMask = (1 << Byte.SIZE) - 1;
+    private static final int ONE_BYTE_MASK = (1 << Byte.SIZE) - 1;
+    private static final HexFormat HF = HexFormat.of().withUpperCase();
+
 
     public ByteString(byte[] bytes) {
         this.bytes = bytes.clone();
@@ -34,8 +36,7 @@ public class ByteString {
         if (hexString == null || hexString.length() == 0 || hexString.length() % 2 != 0 || !hexString.matches(regex))
             throw new NumberFormatException();
 
-        HexFormat hf = HexFormat.of().withUpperCase();
-        return new ByteString(hf.parseHex(hexString));
+        return new ByteString(HF.parseHex(hexString));
     }
 
     /**
@@ -59,7 +60,7 @@ public class ByteString {
         if (index < 0 || index >= bytes.length)
             throw new IndexOutOfBoundsException("Index out of bounds: " + index);
 
-        return (bytes[index] & oneByteMask);
+        return (bytes[index] & ONE_BYTE_MASK);
     }
 
     /**
@@ -73,7 +74,7 @@ public class ByteString {
      */
     public long bytesInRange(int fromIndex, int toIndex) {
         // Validate input indices
-        if (fromIndex < 0 || fromIndex > toIndex || toIndex > bytes.length) {
+        if (fromIndex > toIndex || toIndex > bytes.length) {
             throw new IndexOutOfBoundsException();
         } else if (toIndex - fromIndex > Byte.SIZE) {
             throw new IllegalArgumentException("Cannot extract more than 8 bytes");
@@ -84,7 +85,7 @@ public class ByteString {
         // Extract bytes as a long value
         long value = 0;
         for (int i = fromIndex; i < toIndex; i++) {
-            value = (value << Byte.SIZE) + (bytes[i] & oneByteMask);
+            value = (value << Byte.SIZE) + (bytes[i] & ONE_BYTE_MASK);
         }
         return value;
     }
@@ -111,7 +112,6 @@ public class ByteString {
     @Override
     public String toString() {
 
-        HexFormat hf = HexFormat.of().withUpperCase();
-        return hf.formatHex(bytes);
+        return HF.formatHex(bytes);
     }
 }
