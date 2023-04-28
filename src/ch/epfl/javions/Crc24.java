@@ -32,8 +32,8 @@ final public class Crc24 {
     public int crc(byte[] bytes) {
         int crc = 0;
 
-        for (byte octets : bytes) {
-            crc = ((crc << 8) | Byte.toUnsignedInt(octets)) ^ buildTable[filterNLeastSignificantBits(crc >>> (CRC_LENGTH - 8), 8)];
+        for (byte oneByte : bytes) {
+            crc = ((crc << 8) | Byte.toUnsignedInt(oneByte)) ^ buildTable[filterNLeastSignificantBits(crc >>> (CRC_LENGTH - 8), 8)];
         }
 
         for (int i = 0; i < 3; ++i) {
@@ -53,9 +53,9 @@ final public class Crc24 {
         int crc = 0;
         int[] table = {0, generator};
 
-        for (byte octets : bytes) {
+        for (byte oneByte : bytes) {
             for (int i = 0; i < 8; ++i) {
-                short bit = (short) ((octets >> (7 - i)) & 1);
+                short bit = (short) ((oneByte >> (7 - i)) & 1);
                 crc = ((crc << 1) | bit) ^ table[getNthBit(crc)];
             }
         }
@@ -68,7 +68,7 @@ final public class Crc24 {
     }
 
     /**
-     * This method builds a table for computing CRC values for the 256 octets.
+     * This method builds a table for computing CRC values for the 256 bytes.
      *
      * @param generator the generator used to calculate the CRC values
      * @return an integer array the table
