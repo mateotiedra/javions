@@ -51,7 +51,7 @@ public final class SamplesDecoder {
         Preconditions.checkArgument(batch.length == batchSize);
         int bytesRead = stream.readNBytes(samplesTable, 0, batchSize * 2);
 
-        for (int i = 0; i < samplesTable.length; i += 2) {
+        for (int i = 0; i < bytesRead; i += 2) {
             int msb = Byte.toUnsignedInt(samplesTable[i + 1]) << Byte.SIZE;
             int lsb = Byte.toUnsignedInt(samplesTable[i]);
 
