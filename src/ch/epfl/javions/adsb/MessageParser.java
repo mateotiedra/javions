@@ -12,9 +12,12 @@ import java.util.Set;
 public class MessageParser {
     private static final int AIRCRAFT_IDENTIFICATION_MESSAGE_TYPE_CODE_MIN = 1;
     private static final int AIRCRAFT_IDENTIFICATION_MESSAGE_TYPE_CODE_MAX = 4;
-    private static final Set AIRBORNE_POSITION_MESSAGE_TYPE_CODES = new HashSet(Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22));
+    private static final Set<Integer> AIRBORNE_POSITION_MESSAGE_TYPE_CODES = new HashSet<>(Arrays.asList(9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22));
 
     private static final int AIRBORNE_VELOCITY_MESSAGE_TYPE_CODE = 19;
+
+    private MessageParser() {
+    }
 
 
     /**
@@ -25,7 +28,7 @@ public class MessageParser {
      */
     public static Message parse(RawMessage rawMessage) {
         int typeCode = rawMessage.typeCode();
-        
+
         if (typeCode >= AIRCRAFT_IDENTIFICATION_MESSAGE_TYPE_CODE_MIN && typeCode <= AIRCRAFT_IDENTIFICATION_MESSAGE_TYPE_CODE_MAX) {
             return AircraftIdentificationMessage.of(rawMessage);
         } else if (AIRBORNE_POSITION_MESSAGE_TYPE_CODES.contains(typeCode)) {
