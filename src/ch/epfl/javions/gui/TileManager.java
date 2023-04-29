@@ -13,6 +13,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class TileManager {
+
+    public static final int TILE_SIZE = 256;
     private Path Path;
     private DirectoryStream<Path> stream;
     private String Server;
