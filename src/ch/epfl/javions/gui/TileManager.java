@@ -2,21 +2,21 @@ package ch.epfl.javions.gui;
 
 import javafx.scene.image.Image;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class TileManager {
-    private Path Path;
-    private DirectoryStream<Path> stream;
-    private String Server;
-    Map tiles = new LinkedHashMap<TileId, Image>(100);
+    private final Path path;
+    private final String Server;
+    private Image image = null;
+
+    public final static int MAX_MEMORY = 100;
+    private Map tiles = new LinkedHashMap<TileId, Image>(MAX_MEMORY, 0.75f, true);
 
     record TileId(int zoom, int x, int y) {
         public static boolean isValid(int zoom, int x, int y) {
@@ -24,22 +24,54 @@ public final class TileManager {
         }
     }
 
-    public TileManager(Path Path, String Server) throws IOException {
-        this.Path = Path;
+    public TileManager(Path path, String Server) throws IOException {
+        this.path = path;
         this.Server = Server;
-        this.stream = Files.createDirectories(Path);
+        Files.createDirectories(path);
     }
 
-    public Image imageForTileAt(TileId tileId) {
-        try (URL u = new URL("https://tile.openstreetmap.org/17/67927/46357.png");
-             URLConnection c = u.openConnection();
-             c.setRequestProperty("User-Agent", "Javions");
-             InputStream i = c.getInputStream();) {
+    public Image imageForTileAt(TileId tileId) throws IOException {
+        String filename = tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
 
-        } catch (IOException e) {
-            System.out.println("Error");
-            return null;
+        if (tiles.containsKey(tileId)) {
+            image = (Image) tiles.get(tileId);
+            return image;
+        } else if (Files.exists(Path.of(filename))) {
+            image = new Image(new FileInputStream(filename));
+            if (!(tiles.size() == MAX_MEMORY)) {
+                tiles.put(tileId, image);
+                tiles.keySet().iterator().next();
+            } else {
+                tiles.keySet().iterator().next();
+                tiles.keySet().iterator().remove();
+                tiles.put(tileId, image);
+            }
+            return image;
         }
-        return null;
+
+        URL u = new URL("https://tile.openstreetmap.org/" + filename);
+        byte[] bytes;
+        URLConnection c = u.openConnection();
+        c.setRequestProperty("User-Agent", "Javions");
+        try (InputStream i = c.getInputStream()) {
+            bytes = i.readAllBytes();
+        }
+        try (OutputStream out = new FileOutputStream(filename)) {
+            while (!Files.exists(Path.of(filename))) {
+                if (Files.exists(Path.of(String.valueOf(tileId.zoom)))) {
+                    if (Files.exists(Path.of(tileId.zoom + "/" + tileId.x))) {
+                        out.write(bytes);
+                    } else {
+                        Files.createDirectories(Path.of(tileId.zoom + "/" + tileId.x));
+                    }
+                } else {
+                    Files.createDirectories(Path.of(String.valueOf(tileId.zoom)));
+                }
+            }
+        }
+        try (InputStream is = new ByteArrayInputStream(bytes)) {
+            image = new Image(is);
+            return image;
+        }
     }
 }
