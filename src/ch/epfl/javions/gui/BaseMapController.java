@@ -64,11 +64,11 @@ public final class BaseMapController {
 
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 200);
 
-            mp.scroll(e.getX(), e.getY());
-            mp.changeZoomLevel(1);
+            minScrollTime.set(currentTime + 100);
             mp.scroll(-e.getX(), -e.getY());
+            mp.changeZoomLevel(zoomDelta);
+            mp.scroll(e.getX(), e.getY());
         });
     }
 
@@ -89,7 +89,6 @@ public final class BaseMapController {
             double deltaY = e.getY() - lastMousePos.get().getY();
 
             mp.scroll(deltaX, deltaY);
-
             lastMousePos.get().add(deltaX, deltaY);
         });
 
@@ -117,20 +116,30 @@ public final class BaseMapController {
         double xShift = Math.floor(xPos / 256) * 256 - mp.getMinX();
         double yShift = Math.floor(yPos / 256) * 256 - mp.getMinY();
 
-        while (xPos < mp.getMinX() + pane.getWidth()) {
-            while (yPos < mp.getMinY() + pane.getHeight()) {
+        int count = 0;
+        System.out.println(pane.getWidth() + ", " + pane.getHeight());
+
+        while (xPos + xShift < mp.getMinX() + pane.getWidth()) {
+            while (yPos + yShift < mp.getMinY() + pane.getHeight()) {
                 try {
                     Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), (int) (xPos / 256), (int) (yPos / 256)));
                     gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
+                    count++;
+
+                    System.out.println("Redrew tile at " + (xPos - mp.getMinX() + xShift) + ", " + (yPos - mp.getMinY() + yShift));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
                 yPos += TileManager.TILE_SIZE;
             }
+            yPos = mp.getMinY();
             xPos += TileManager.TILE_SIZE;
         }
+
+        System.out.println("Redrew " + count + " tiles");
     }
+
 
     /**
      * Center the map on the given position.

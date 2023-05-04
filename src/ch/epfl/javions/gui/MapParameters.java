@@ -84,8 +84,8 @@ public final class MapParameters {
      * @param deltaY the delta y
      */
     public void scroll(double deltaX, double deltaY) {
-        minX.add(deltaX);
-        minY.add(deltaY);
+        minX.set(minX.get() - deltaX);
+        minY.set(minY.get() - deltaY);
     }
 
     /**
