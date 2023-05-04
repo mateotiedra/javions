@@ -25,13 +25,13 @@ public final class TileManager {
         }
     }
 
-    public TileManager(Path path, String server) throws IOException {
+    public TileManager(Path path, String server) {
         this.path = path;
         this.server = server;
-        Files.createDirectories(path);
     }
 
     public Image imageForTileAt(TileId tileId) throws IOException {
+        Files.createDirectories(path);
         String filename = "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
         String pathName = path + filename;
 
