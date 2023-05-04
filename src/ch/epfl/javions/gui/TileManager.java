@@ -13,7 +13,7 @@ import java.util.Map;
 public final class TileManager {
     public static final double TILE_SIZE = 256;
     private final Path path;
-    private final String Server;
+    private final String server;
     private Image image = null;
 
     public final static int MAX_MEMORY = 100;
@@ -25,14 +25,15 @@ public final class TileManager {
         }
     }
 
-    public TileManager(Path path, String Server) throws IOException {
+    public TileManager(Path path, String server) throws IOException {
         this.path = path;
-        this.Server = Server;
+        this.server = server;
         Files.createDirectories(path);
     }
 
     public Image imageForTileAt(TileId tileId) throws IOException {
-        String filename = tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
+        String filename = "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
+        String pathName = path + filename;
 
         if (tiles.containsKey(tileId)) {
             image = (Image) tiles.get(tileId);
@@ -50,25 +51,16 @@ public final class TileManager {
             return image;
         }
 
-        URL u = new URL("https://tile.openstreetmap.org/" + filename);
+        URL u = new URL("https://" + server + filename);
         byte[] bytes;
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "Javions");
         try (InputStream i = c.getInputStream()) {
             bytes = i.readAllBytes();
+            Files.createDirectories(Path.of(path + "/" + tileId.zoom + "/" + tileId.x + "/"));
         }
-        try (OutputStream out = new FileOutputStream(filename)) {
-            while (!Files.exists(Path.of(filename))) {
-                if (Files.exists(Path.of(String.valueOf(tileId.zoom)))) {
-                    if (Files.exists(Path.of(tileId.zoom + "/" + tileId.x))) {
-                        out.write(bytes);
-                    } else {
-                        Files.createDirectories(Path.of(tileId.zoom + "/" + tileId.x));
-                    }
-                } else {
-                    Files.createDirectories(Path.of(String.valueOf(tileId.zoom)));
-                }
-            }
+        try (OutputStream out = new FileOutputStream(pathName)) {
+            out.write(bytes);
         }
         try (InputStream is = new ByteArrayInputStream(bytes)) {
             image = new Image(is);
