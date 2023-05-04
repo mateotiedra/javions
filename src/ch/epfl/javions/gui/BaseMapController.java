@@ -10,6 +10,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
+import java.io.IOException;
 import java.util.Objects;
 
 public final class BaseMapController {
@@ -55,7 +56,7 @@ public final class BaseMapController {
      * @param pane the pane to listen to
      * @param mp   the map parameters
      */
-    private static void setZoomManager(Pane pane, MapParameters mp) {
+    private void setZoomManager(Pane pane, MapParameters mp) {
         final LongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
@@ -77,7 +78,7 @@ public final class BaseMapController {
      * @param pane the pane to listen to
      * @param mp   the map parameters
      */
-    private static void setMapMovementManager(Pane pane, MapParameters mp) {
+    private void setMapMovementManager(Pane pane, MapParameters mp) {
         ObjectProperty<Point2D> lastMousePos = new SimpleObjectProperty<>();
         pane.setOnMousePressed(e -> lastMousePos.set(new Point2D(e.getX(), e.getY())));
 
@@ -118,8 +119,12 @@ public final class BaseMapController {
 
         while (xPos < mp.getMinX() + pane.getWidth()) {
             while (yPos < mp.getMinY() + pane.getHeight()) {
-                Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), (int) (xPos / 256), (int) (yPos / 256)));
-                gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
+                try {
+                    Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), (int) (xPos / 256), (int) (yPos / 256)));
+                    gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 yPos += TileManager.TILE_SIZE;
             }
