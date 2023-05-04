@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public final class TileManager {
+    public static final double TILE_SIZE = 256;
     private final Path path;
     private final String Server;
     private Image image = null;
