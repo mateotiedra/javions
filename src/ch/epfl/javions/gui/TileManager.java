@@ -40,14 +40,10 @@ public final class TileManager {
             return image;
         } else if (Files.exists(Path.of(filename))) {
             image = new Image(new FileInputStream(filename));
-            if (!(tiles.size() == MAX_MEMORY)) {
-                tiles.put(tileId, image);
-                tiles.keySet().iterator().next();
-            } else {
-                tiles.keySet().iterator().next();
-                tiles.keySet().iterator().remove();
-                tiles.put(tileId, image);
+            if ((tiles.size() == MAX_MEMORY)) {
+                tiles.remove(tiles.keySet().iterator().next());
             }
+            tiles.put(tileId, image);
             return image;
         }
 
@@ -64,7 +60,11 @@ public final class TileManager {
         }
         try (InputStream is = new ByteArrayInputStream(bytes)) {
             image = new Image(is);
-            return image;
         }
+        if ((tiles.size() == MAX_MEMORY)) {
+            tiles.remove(tiles.keySet().iterator().next());
+        }
+        tiles.put(tileId, image);
+        return image;
     }
 }
