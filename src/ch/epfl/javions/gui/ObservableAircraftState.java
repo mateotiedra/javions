@@ -2,6 +2,7 @@ package ch.epfl.javions.gui;
 
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.Preconditions;
+import ch.epfl.javions.WebMercator;
 import ch.epfl.javions.adsb.AircraftStateSetter;
 import ch.epfl.javions.adsb.CallSign;
 import ch.epfl.javions.aircraft.AircraftData;
@@ -42,6 +43,17 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
     public record AirbornePos(GeoPos position, double altitude) {
+        public AirbornePos {
+            Preconditions.checkArgument(altitude >= 0);
+        }
+
+        public double getWebMercatorPosX(int zoomLevel) {
+            return WebMercator.x(zoomLevel, position.longitude());
+        }
+
+        public double getWebMercatorPosY(int zoomLevel) {
+            return WebMercator.y(zoomLevel, position.latitude());
+        }
     }
 
     // IcaoAddress
@@ -86,11 +98,11 @@ public final class ObservableAircraftState implements AircraftStateSetter {
 
     // Callsign
 
-    public ReadOnlyObjectProperty<CallSign> callsignProperty() {
+    public ReadOnlyObjectProperty<CallSign> callSignProperty() {
         return callsign;
     }
 
-    public CallSign getCallsign() {
+    public CallSign getCallSign() {
         return callsign.get();
     }
 
