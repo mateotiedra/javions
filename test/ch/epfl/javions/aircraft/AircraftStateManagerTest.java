@@ -64,8 +64,8 @@ public class AircraftStateManagerTest {
             String registration = "";
             String model = "";
             String icao = state.getIcaoAddress().string();
-            if (state.getCallsign() != null)
-                callsign = state.getCallsign().string();
+            if (state.getCallSign() != null)
+                callsign = state.getCallSign().string();
             if (state.getAircraftData() != null) {
                 registration = state.getAircraftData().registration().string();
                 model = state.getAircraftData().model();

@@ -89,7 +89,7 @@ public final class BaseMapController {
             double deltaY = e.getY() - lastMousePos.get().getY();
 
             mp.scroll(deltaX, deltaY);
-            lastMousePos.get().add(deltaX, deltaY);
+            lastMousePos.set(new Point2D(e.getX(), e.getY()));
         });
 
         pane.setOnMouseReleased(e -> lastMousePos.set(null));
@@ -116,17 +116,12 @@ public final class BaseMapController {
         double xShift = Math.floor(xPos / 256) * 256 - mp.getMinX();
         double yShift = Math.floor(yPos / 256) * 256 - mp.getMinY();
 
-        int count = 0;
-        System.out.println(pane.getWidth() + ", " + pane.getHeight());
-
         while (xPos + xShift < mp.getMinX() + pane.getWidth()) {
             while (yPos + yShift < mp.getMinY() + pane.getHeight()) {
                 try {
                     Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), (int) (xPos / 256), (int) (yPos / 256)));
                     gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
-                    count++;
 
-                    System.out.println("Redrew tile at " + (xPos - mp.getMinX() + xShift) + ", " + (yPos - mp.getMinY() + yShift));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -136,8 +131,6 @@ public final class BaseMapController {
             yPos = mp.getMinY();
             xPos += TileManager.TILE_SIZE;
         }
-
-        System.out.println("Redrew " + count + " tiles");
     }
 
 
