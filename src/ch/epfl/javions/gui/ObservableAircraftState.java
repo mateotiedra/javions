@@ -12,6 +12,8 @@ import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.collections.FXCollections;
 
+import java.util.Objects;
+
 public final class ObservableAircraftState implements AircraftStateSetter {
     private final IcaoAddress icaoAddress;
     private final AircraftData aircraftData;
@@ -27,19 +29,9 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final DoubleProperty velocity = new SimpleDoubleProperty();
     private final DoubleProperty trackOrHeading = new SimpleDoubleProperty();
 
-    public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData/*, long lastMessageTimeStampNs, int category,
-                                   CallSign callsign, GeoPos position, List<AirbornePos> trajectory, double altitude, double velocity, double trackOrHeading*/) {
-        this.icaoAddress = icaoAddress;
-        this.aircraftData = aircraftData;
-
-        /*this.lastMessageTimeStampNs = new SimpleLongProperty(lastMessageTimeStampNs);
-        this.category = new SimpleIntegerProperty(category);
-        this.callsign = new SimpleObjectProperty<>(callsign);
-        this.position = new SimpleObjectProperty<>(position);
-        this.trajectory = new SimpleObjectProperty<>(trajectory);
-        this.altitude = new SimpleDoubleProperty(altitude);
-        this.velocity = new SimpleDoubleProperty(velocity);
-        this.trackOrHeading = new SimpleDoubleProperty(trackOrHeading);*/
+    public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
+        this.icaoAddress = Objects.requireNonNull(icaoAddress);
+        this.aircraftData = Objects.requireNonNull(aircraftData);
     }
 
     public record AirbornePos(GeoPos position, double altitude) {

@@ -41,7 +41,10 @@ public class AircraftStateManager {
                 AircraftData aircraftData = aircraftDatabase.get(icaoAddress);
                 aircraftStateAccumulatorMap.put(icaoAddress, new AircraftStateAccumulator<>(new ObservableAircraftState(icaoAddress, aircraftData)));
             } catch (IOException e) {
-                System.out.printf("%s is not in the database \n", icaoAddress);
+                System.out.println("Database not found \n");
+            } catch (NullPointerException e) {
+                //System.out.printf("%s is not in the database \n", icaoAddress);
+                return;
             }
         } else {
             aircraftStateAccumulatorMap.get(icaoAddress).update(message);
