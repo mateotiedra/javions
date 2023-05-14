@@ -38,8 +38,9 @@ public final class TileManager {
         if (tiles.containsKey(tileId)) {
             image = (Image) tiles.get(tileId);
             return image;
-        } else if (Files.exists(Path.of(filename))) {
-            image = new Image(new FileInputStream(filename));
+        }
+        if (Files.exists(Path.of(pathName))) {
+            image = new Image(new FileInputStream(pathName));
             if ((tiles.size() == MAX_MEMORY)) {
                 tiles.remove(tiles.keySet().iterator().next());
             }
