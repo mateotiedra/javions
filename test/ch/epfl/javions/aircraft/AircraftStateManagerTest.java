@@ -35,6 +35,9 @@ public class AircraftStateManagerTest {
                 Message message = MessageParser.parse(rawMessage);
                 if (message != null) aircraftStateManager.updateWithMessage(message);
                 aircraft = aircraftStateManager.states();
+                if (aircraft.size() > 0) {
+                    System.out.println("timeStampNs: " + timeStampNs);
+                }
                 printAircraftTable(aircraft);
                 aircraftStateManager.purge();
             }

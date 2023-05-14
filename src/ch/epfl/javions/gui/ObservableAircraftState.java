@@ -25,13 +25,13 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final ObjectProperty<GeoPos> position = new SimpleObjectProperty<>();
     private final ObservableList<AirbornePos> trajectory = FXCollections.observableArrayList();
     private final ObservableList<AirbornePos> unmodifiableTrajectory = FXCollections.unmodifiableObservableList(trajectory);
-    private final DoubleProperty altitude = new SimpleDoubleProperty();
-    private final DoubleProperty velocity = new SimpleDoubleProperty();
-    private final DoubleProperty trackOrHeading = new SimpleDoubleProperty();
+    private final DoubleProperty altitude = new SimpleDoubleProperty(-1);
+    private final DoubleProperty velocity = new SimpleDoubleProperty(-1);
+    private final DoubleProperty trackOrHeading = new SimpleDoubleProperty(0);
 
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
         this.icaoAddress = Objects.requireNonNull(icaoAddress);
-        this.aircraftData = Objects.requireNonNull(aircraftData);
+        this.aircraftData = aircraftData;
     }
 
     public record AirbornePos(GeoPos position, double altitude) {
@@ -59,7 +59,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     }
 
     // Last message time stamp
-
     public ReadOnlyLongProperty lastMessageTimeStampNsProperty() {
         return lastMessageTimeStampNs;
     }

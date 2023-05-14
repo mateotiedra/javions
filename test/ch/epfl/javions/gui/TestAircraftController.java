@@ -81,9 +81,10 @@ public class TestAircraftController extends Application {
         new AnimationTimer() {
             @Override
             public void handle(long now) {
-                for (int i = 0; i < 10; i += 1) {
+                for (int i = 0; i < 20; i += 1) {
                     Message m = MessageParser.parse(mi.next());
                     if (m != null) asm.updateWithMessage(m);
+                    asm.purge();
                 }
             }
         }.start();

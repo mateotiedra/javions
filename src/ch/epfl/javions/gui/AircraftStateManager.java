@@ -10,6 +10,7 @@ import javafx.collections.ObservableSet;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class AircraftStateManager {
@@ -19,7 +20,7 @@ public class AircraftStateManager {
 
     private final AircraftDatabase aircraftDatabase;
     private long lastMessageTimeStampNs;
-    private static final long oneMinuteInNs = 60000000000L;
+    private static final long ONE_MINUTE_IN_NS = 60000000000L;
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         this.aircraftDatabase = aircraftDatabase;
@@ -41,10 +42,7 @@ public class AircraftStateManager {
                 AircraftData aircraftData = aircraftDatabase.get(icaoAddress);
                 aircraftStateAccumulatorMap.put(icaoAddress, new AircraftStateAccumulator<>(new ObservableAircraftState(icaoAddress, aircraftData)));
             } catch (IOException e) {
-                System.out.println("Database not found \n");
-            } catch (NullPointerException e) {
-                //System.out.printf("%s is not in the database \n", icaoAddress);
-                return;
+                System.out.println("Database not found\n");
             }
         } else {
             aircraftStateAccumulatorMap.get(icaoAddress).update(message);
@@ -58,8 +56,13 @@ public class AircraftStateManager {
     }
 
     public void purge() {
-        aircraftWithKnownPositionStates.removeIf(
-                observableAircraftState -> (lastMessageTimeStampNs - observableAircraftState.getLastMessageTimeStampNs()) > oneMinuteInNs
-        );
+        List<ObservableAircraftState> aircraftToRemoveList = aircraftWithKnownPositionStates.stream().filter(
+                state -> lastMessageTimeStampNs - state.getLastMessageTimeStampNs() > ONE_MINUTE_IN_NS
+        ).toList();
+
+        for (ObservableAircraftState aircraftToRemove : aircraftToRemoveList) {
+            aircraftWithKnownPositionStates.remove(aircraftToRemove);
+            aircraftStateAccumulatorMap.remove(aircraftToRemove.getIcaoAddress());
+        }
     }
 }

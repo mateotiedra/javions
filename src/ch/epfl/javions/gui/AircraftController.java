@@ -3,6 +3,9 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.Units;
 import ch.epfl.javions.WebMercator;
 import ch.epfl.javions.aircraft.AircraftData;
+import ch.epfl.javions.aircraft.AircraftDescription;
+import ch.epfl.javions.aircraft.AircraftTypeDesignator;
+import ch.epfl.javions.aircraft.WakeTurbulenceCategory;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -45,11 +48,11 @@ public final class AircraftController {
         }
 
         visibleAircraft.addListener((SetChangeListener<ObservableAircraftState>) change -> {
-            ObservableAircraftState aircraft = change.getElementAdded();
             if (change.wasAdded()) {
-                pane.getChildren().add(buildAircraftGroup(aircraft));
+                pane.getChildren().add(buildAircraftGroup(change.getElementAdded()));
             } else if (change.wasRemoved()) {
-                System.out.println("Removing aircraft " + aircraft.getIcaoAddress().string());
+                ObservableAircraftState aircraft = change.getElementRemoved();
+                //System.out.println("Removing aircraft " + aircraft.getIcaoAddress().string());
                 pane.getChildren().removeIf(group -> group.getId().equals(aircraft.getIcaoAddress().string()));
             }
         });
@@ -81,7 +84,7 @@ public final class AircraftController {
                 aircraft.positionProperty()));
 
         movingGroup.getChildren().add(buildLabelGroup(aircraft));
-        movingGroup.getChildren().add(buildIconGroup(aircraft));
+        movingGroup.getChildren().add(buildIconSvgPath(aircraft));
 
         aircraftGroup.getChildren().add(movingGroup);
 
@@ -163,13 +166,17 @@ public final class AircraftController {
         Text text = new Text();
 
         // Bind the label text to the aircraft data and the speed and altitude properties
-        String registration = aircraft.getAircraftData().registration().string();
+        String registration = (aircraft.getAircraftData() != null) ? aircraft.getAircraftData().registration().string() : "";
 
         text.textProperty().bind(Bindings.createStringBinding(() -> {
                     String firstLine = (!registration.isEmpty() ? registration
-                            : (!aircraft.getCallSign().string().isEmpty()) ? aircraft.getCallSign().string()
+                            : (aircraft.getCallSign() != null) ? aircraft.getCallSign().string()
                             : aircraft.getIcaoAddress().string());
-                    return String.format("%s\n%okm/h\u2002%om", firstLine, Math.round(aircraft.getVelocity()), Math.round(aircraft.getAltitude()));
+
+                    String velocity = aircraft.getVelocity() < 0 ? "?" : String.valueOf(Math.round(aircraft.getVelocity()));
+                    String altitude = aircraft.getAltitude() < 0 ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
+
+                    return String.format("%s\n%s km/h\u2002%s m", firstLine, velocity, altitude);
                 },
                 aircraft.callSignProperty(),
                 aircraft.velocityProperty(),
@@ -189,30 +196,30 @@ public final class AircraftController {
         return labelGroup;
     }
 
-    private Group buildIconGroup(ObservableAircraftState aircraft) {
-        Group iconGroup = new Group();
-        iconGroup.getStyleClass().add("aircraft");
+    private SVGPath buildIconSvgPath(ObservableAircraftState aircraft) {
+        SVGPath svgPath = new SVGPath();
+        svgPath.getStyleClass().add("aircraft");
 
-        iconGroup.setOnMouseClicked(e ->
+        svgPath.setOnMouseClicked(e ->
                 selectedAircraft.set(aircraft)
         );
 
         AircraftData data = aircraft.getAircraftData();
         ObjectProperty<AircraftIcon> iconProperty = new SimpleObjectProperty<>();
         iconProperty.bind(aircraft.categoryProperty().map(
-                category -> AircraftIcon.iconFor(data.typeDesignator(), data.description(), aircraft.getCategory(), data.wakeTurbulenceCategory())
+                category -> data == null
+                        ? AircraftIcon.iconFor(new AircraftTypeDesignator(""), new AircraftDescription(""), aircraft.getCategory(), WakeTurbulenceCategory.of(""))
+                        : AircraftIcon.iconFor(data.typeDesignator(), data.description(), aircraft.getCategory(), data.wakeTurbulenceCategory())
         ));
 
-        SVGPath svgPath = new SVGPath();
         svgPath.contentProperty().bind(iconProperty.map(AircraftIcon::svgPath));
         svgPath.rotateProperty().bind(aircraft.trackOrHeadingProperty().map(
                 track -> iconProperty.get().canRotate() ? Units.convert(track.doubleValue(), Units.Angle.RADIAN, Units.Angle.DEGREE) : 0)
         );
         svgPath.fillProperty().bind(aircraft.altitudeProperty().map(alt -> ColorRamp.PLASMA.at(getFractionFromAltitude(alt.doubleValue()))));
 
-        iconGroup.getChildren().add(svgPath);
 
-        return iconGroup;
+        return svgPath;
     }
 
     private double getFractionFromAltitude(double alt) {
