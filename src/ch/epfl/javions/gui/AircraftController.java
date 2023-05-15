@@ -173,8 +173,8 @@ public final class AircraftController {
                             : (aircraft.getCallSign() != null) ? aircraft.getCallSign().string()
                             : aircraft.getIcaoAddress().string());
 
-                    String velocity = aircraft.getVelocity() < 0 ? "?" : String.valueOf(Math.round(aircraft.getVelocity()));
-                    String altitude = aircraft.getAltitude() < 0 ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
+                    String velocity = Double.isNaN(aircraft.getVelocity()) ? "?" : String.valueOf(Math.round(aircraft.getVelocity()));
+                    String altitude = Double.isNaN(aircraft.getAltitude()) ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
 
                     return String.format("%s\n%s km/h\u2002%s m", firstLine, velocity, altitude);
                 },

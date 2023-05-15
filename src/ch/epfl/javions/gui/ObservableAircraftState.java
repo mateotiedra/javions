@@ -25,8 +25,8 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     private final ObjectProperty<GeoPos> position = new SimpleObjectProperty<>();
     private final ObservableList<AirbornePos> trajectory = FXCollections.observableArrayList();
     private final ObservableList<AirbornePos> unmodifiableTrajectory = FXCollections.unmodifiableObservableList(trajectory);
-    private final DoubleProperty altitude = new SimpleDoubleProperty(-1);
-    private final DoubleProperty velocity = new SimpleDoubleProperty(-1);
+    private final DoubleProperty altitude = new SimpleDoubleProperty(Double.NaN);
+    private final DoubleProperty velocity = new SimpleDoubleProperty(Double.NaN);
     private final DoubleProperty trackOrHeading = new SimpleDoubleProperty(0);
 
     public ObservableAircraftState(IcaoAddress icaoAddress, AircraftData aircraftData) {
@@ -108,17 +108,6 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return unmodifiableTrajectory;
     }
 
-    private void updateTrajectory() {
-        AirbornePos point = new AirbornePos(getPosition(), getAltitude());
-
-        if (trajectory.isEmpty() || !trajectory.get(trajectory.size() - 1).equals(point)) {
-            trajectory.add(point);
-            lastAirbornePositionMessageTimeStampNs = getLastMessageTimeStampNs();
-        } else if (lastAirbornePositionMessageTimeStampNs == getLastMessageTimeStampNs()) {
-            trajectory.set(trajectory.size() - 1, point);
-        }
-    }
-
     // Position
 
     public ReadOnlyObjectProperty<GeoPos> positionProperty() {
@@ -132,7 +121,11 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setPosition(GeoPos position) {
         this.position.set(position);
-        updateTrajectory();
+
+        if (!Double.isNaN(getAltitude())) {
+            trajectory.add(new AirbornePos(position, getAltitude()));
+            lastAirbornePositionMessageTimeStampNs = getLastMessageTimeStampNs();
+        }
     }
 
     // Altitude
@@ -147,7 +140,15 @@ public final class ObservableAircraftState implements AircraftStateSetter {
     @Override
     public void setAltitude(double altitude) {
         this.altitude.set(altitude);
-        updateTrajectory();
+
+        if (getPosition() != null) {
+            AirbornePos point = new AirbornePos(getPosition(), altitude);
+            if (trajectory.isEmpty()) {
+                trajectory.add(point);
+            } else if (getLastMessageTimeStampNs() == lastAirbornePositionMessageTimeStampNs) {
+                trajectory.set(trajectory.size() - 1, point);
+            }
+        }
     }
 
     // Velocity
