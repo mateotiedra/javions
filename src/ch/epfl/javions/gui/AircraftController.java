@@ -52,7 +52,6 @@ public final class AircraftController {
                 pane.getChildren().add(buildAircraftGroup(change.getElementAdded()));
             } else if (change.wasRemoved()) {
                 ObservableAircraftState aircraft = change.getElementRemoved();
-                //System.out.println("Removing aircraft " + aircraft.getIcaoAddress().string());
                 pane.getChildren().removeIf(group -> group.getId().equals(aircraft.getIcaoAddress().string()));
             }
         });
@@ -173,7 +172,8 @@ public final class AircraftController {
                             : (aircraft.getCallSign() != null) ? aircraft.getCallSign().string()
                             : aircraft.getIcaoAddress().string());
 
-                    String velocity = Double.isNaN(aircraft.getVelocity()) ? "?" : String.valueOf(Math.round(aircraft.getVelocity()));
+                    String velocity = Double.isNaN(aircraft.getVelocity()) ? "?" :
+                            String.valueOf(Math.round(Units.convert(aircraft.getVelocity(), Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR)));
                     String altitude = Double.isNaN(aircraft.getAltitude()) ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
 
                     return String.format("%s\n%s km/h\u2002%s m", firstLine, velocity, altitude);

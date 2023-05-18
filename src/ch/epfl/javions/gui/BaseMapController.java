@@ -83,16 +83,12 @@ public final class BaseMapController {
         pane.setOnMousePressed(e -> lastMousePos.set(new Point2D(e.getX(), e.getY())));
 
         pane.setOnMouseDragged(e -> {
-            if (lastMousePos.get() == null) return;
-
             double deltaX = e.getX() - lastMousePos.get().getX();
             double deltaY = e.getY() - lastMousePos.get().getY();
 
             mp.scroll(deltaX, deltaY);
             lastMousePos.set(new Point2D(e.getX(), e.getY()));
         });
-
-        pane.setOnMouseReleased(e -> lastMousePos.set(null));
     }
 
     public Pane pane() {

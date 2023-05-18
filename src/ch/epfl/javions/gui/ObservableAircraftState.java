@@ -157,6 +157,7 @@ public final class ObservableAircraftState implements AircraftStateSetter {
         return velocity;
     }
 
+    // Velocity in m/s
     public double getVelocity() {
         return velocity.get();
     }

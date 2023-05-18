@@ -67,6 +67,7 @@ public final class Units {
 
         public static final double KNOT = Length.NAUTICAL_MILE / Time.HOUR;
         public static final double KILOMETER_PER_HOUR = Length.KILOMETER / Time.HOUR;
+        public static final double METER_PER_SECOND = Length.METER / Time.SECOND;
     }
 
     /**
