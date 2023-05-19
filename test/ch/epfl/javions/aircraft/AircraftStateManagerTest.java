@@ -61,6 +61,7 @@ public class AircraftStateManagerTest {
         } catch (EOFException e) { /* nothing to do */ }
     }
 
+
     private static void printAircraftTable(Set<ObservableAircraftState> aircraft) {
         for (ObservableAircraftState state : aircraft) {
             String callsign = "";
