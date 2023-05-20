@@ -37,15 +37,15 @@ public class AircraftStateManager {
         IcaoAddress icaoAddress = message.icaoAddress();
         lastMessageTimeStampNs = message.timeStampNs();
 
-        if (!aircraftStateAccumulatorMap.containsKey(icaoAddress)) {
+        if (aircraftStateAccumulatorMap.containsKey(icaoAddress)) {
+            aircraftStateAccumulatorMap.get(icaoAddress).update(message);
+        } else {
             try {
                 AircraftData aircraftData = aircraftDatabase.get(icaoAddress);
                 aircraftStateAccumulatorMap.put(icaoAddress, new AircraftStateAccumulator<>(new ObservableAircraftState(icaoAddress, aircraftData)));
             } catch (IOException e) {
                 System.out.println("Database not found\n");
             }
-        } else {
-            aircraftStateAccumulatorMap.get(icaoAddress).update(message);
         }
 
         ObservableAircraftState state = aircraftStateAccumulatorMap.get(icaoAddress).stateSetter();
