@@ -51,8 +51,7 @@ public final class AircraftController {
             if (change.wasAdded()) {
                 pane.getChildren().add(buildAircraftGroup(change.getElementAdded()));
             } else if (change.wasRemoved()) {
-                ObservableAircraftState aircraft = change.getElementRemoved();
-                pane.getChildren().removeIf(group -> group.getId().equals(aircraft.getIcaoAddress().string()));
+                pane.getChildren().removeIf(group -> group.getId().equals(change.getElementRemoved().getIcaoAddress().string()));
             }
         });
     }
@@ -82,8 +81,7 @@ public final class AircraftController {
                 mp.minYProperty(),
                 aircraft.positionProperty()));
 
-        movingGroup.getChildren().add(buildLabelGroup(aircraft));
-        movingGroup.getChildren().add(buildIconSvgPath(aircraft));
+        movingGroup.getChildren().addAll(buildLabelGroup(aircraft), buildIconSvgPath(aircraft));
 
         aircraftGroup.getChildren().add(movingGroup);
 
@@ -208,16 +206,16 @@ public final class AircraftController {
         ObjectProperty<AircraftIcon> iconProperty = new SimpleObjectProperty<>();
         iconProperty.bind(aircraft.categoryProperty().map(
                 category -> data == null
-                        ? AircraftIcon.iconFor(new AircraftTypeDesignator(""), new AircraftDescription(""), aircraft.getCategory(), WakeTurbulenceCategory.of(""))
+                        ? AircraftIcon.iconFor(new AircraftTypeDesignator(""), new AircraftDescription(""), aircraft.getCategory(), WakeTurbulenceCategory.UNKNOWN)
                         : AircraftIcon.iconFor(data.typeDesignator(), data.description(), aircraft.getCategory(), data.wakeTurbulenceCategory())
         ));
 
         svgPath.contentProperty().bind(iconProperty.map(AircraftIcon::svgPath));
-        svgPath.rotateProperty().bind(aircraft.trackOrHeadingProperty().map(
-                track -> iconProperty.get().canRotate() ? Units.convert(track.doubleValue(), Units.Angle.RADIAN, Units.Angle.DEGREE) : 0)
-        );
+        svgPath.rotateProperty().bind(Bindings.createDoubleBinding(
+                () -> iconProperty.get().canRotate() ? Units.convert(aircraft.getTrackOrHeading(), Units.Angle.RADIAN, Units.Angle.DEGREE) : 0,
+                iconProperty,
+                aircraft.trackOrHeadingProperty()));
         svgPath.fillProperty().bind(aircraft.altitudeProperty().map(alt -> ColorRamp.PLASMA.at(getFractionFromAltitude(alt.doubleValue()))));
-
 
         return svgPath;
     }

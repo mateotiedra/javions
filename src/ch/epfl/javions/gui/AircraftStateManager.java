@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.AircraftStateAccumulator;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.aircraft.AircraftData;
@@ -20,7 +21,7 @@ public class AircraftStateManager {
 
     private final AircraftDatabase aircraftDatabase;
     private long lastMessageTimeStampNs;
-    private static final long ONE_MINUTE_IN_NS = 60000000000L;
+    private static final long ONE_MINUTE_IN_NS = (long) (Units.Time.MINUTE * Math.pow(10, 9));
 
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         this.aircraftDatabase = aircraftDatabase;
