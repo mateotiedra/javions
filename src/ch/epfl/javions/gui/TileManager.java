@@ -10,6 +10,11 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/**
+ * A tile manager.
+ *
+ * @author Kevan Lam (356395)
+ */
 public final class TileManager {
     public static final double TILE_SIZE = 256;
     private final Path path;
@@ -19,17 +24,41 @@ public final class TileManager {
     public final static int MAX_MEMORY = 100;
     private Map tiles = new LinkedHashMap<TileId, Image>(MAX_MEMORY, 0.75f, true);
 
+    /**
+     * Represents a tile identifier consisting of zoom level, x-coordinate, and y-coordinate.
+     */
     record TileId(int zoom, int x, int y) {
+        /**
+         * Checks if the given zoom, x-coordinate, and y-coordinate values form a valid tile ID.
+         *
+         * @param zoom the zoom level
+         * @param x    the x-coordinate
+         * @param y    the y-coordinate
+         * @return true if the tile ID is valid, false otherwise
+         */
         public static boolean isValid(int zoom, int x, int y) {
             return zoom >= 0 && zoom < 20 && x >= 0 && x < (1 << zoom) && y >= 0 && y < (1 << zoom);
         }
     }
 
+    /**
+     * Create a new tile manager with the given path and server.
+     *
+     * @param path   the path to store the tiles
+     * @param server the server to download the tiles from
+     */
     public TileManager(Path path, String server) {
         this.path = path;
         this.server = server;
     }
 
+    /**
+     * Return the tile image for the given tile id.
+     *
+     * @param tileId the tile id
+     * @return the tile image
+     * @throws IOException if an I/O error occurs
+     */
     public Image imageForTileAt(TileId tileId) throws IOException {
         Files.createDirectories(path);
         String filename = "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";

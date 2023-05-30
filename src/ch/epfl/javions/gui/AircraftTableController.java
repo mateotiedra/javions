@@ -14,16 +14,26 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.function.Consumer;
 
-
+/**
+ * Controller for the aircraft table
+ *
+ * @author Kevan Lam (356395)
+ */
 public final class AircraftTableController {
-    private final ObservableSet<ObservableAircraftState> observableState;
-    private final TableView<ObservableAircraftState> tableView;
-    private final NumberFormat longlatFormater = NumberFormat.getInstance();
+    private ObservableSet<ObservableAircraftState> observableState;
+    private TableView<ObservableAircraftState> tableView;
+    private NumberFormat longlatFormater = NumberFormat.getInstance();
+    private NumberFormat altvitFormater = NumberFormat.getInstance();
+    private Pane pane;
+    private ObjectProperty<ObservableAircraftState> selectedAircraft;
 
-    private final NumberFormat altvitFormater = NumberFormat.getInstance();
-    private final Pane pane;
-    private final ObjectProperty<ObservableAircraftState> selectedAircraft;
-
+    /**
+     * Controller class for the aircraft table view.
+     * This class manages the initialization and behavior of the aircraft table view.
+     *
+     * @param observableAircraftState An ObservableSet of ObservableAircraftState objects representing the aircraft states.
+     * @param selectedAircraft        An ObjectProperty representing the currently selected aircraft state.
+     */
     public AircraftTableController(ObservableSet<ObservableAircraftState> observableAircraftState, ObjectProperty<ObservableAircraftState> selectedAircraft) {
         this.tableView = new TableView<>();
         pane = new Pane(tableView);
@@ -45,10 +55,20 @@ public final class AircraftTableController {
         createColumns();
     }
 
+    /**
+     * @return the pane containing the table
+     */
     public TableView<ObservableAircraftState> pane() {
         return tableView;
     }
 
+    /**
+     * Sets a double-click event handler for the aircraft table view.
+     * The provided consumer function will be called when a double-click event occurs on the table view.
+     * The selected aircraft state will be passed as an argument to the consumer function.
+     *
+     * @param consumer The consumer function to be called on double-click events. It accepts an ObservableAircraftState object as the argument.
+     */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> consumer) {
         tableView.setOnMouseClicked(event -> {
             if (event.getClickCount() == 2) {
@@ -59,6 +79,9 @@ public final class AircraftTableController {
         });
     }
 
+    /**
+     * Creates the columns of the table
+     */
     private void createColumns() {
         longlatFormater.setMaximumFractionDigits(4);
         longlatFormater.setMinimumFractionDigits(4);
@@ -165,6 +188,11 @@ public final class AircraftTableController {
                 longitudeCol, latitudeCol, altitudeCol, speedCol);
     }
 
+    /**
+     * Sets the comparator of the column to compare the values as numbers
+     *
+     * @param column the column to set the comparator
+     */
     private void columnComparator(TableColumn<ObservableAircraftState, String> column) {
         column.setComparator((s1, s2) -> {
             if (s1.isEmpty() || s2.isEmpty())
