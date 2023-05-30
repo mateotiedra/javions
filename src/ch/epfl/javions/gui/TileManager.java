@@ -1,5 +1,6 @@
 package ch.epfl.javions.gui;
 
+import ch.epfl.javions.Preconditions;
 import javafx.scene.image.Image;
 
 import java.io.*;
@@ -19,15 +20,18 @@ public final class TileManager {
     public static final double TILE_SIZE = 256;
     private final Path path;
     private final String server;
-    private Image image = null;
 
     public final static int MAX_MEMORY = 100;
-    private Map tiles = new LinkedHashMap<TileId, Image>(MAX_MEMORY, 0.75f, true);
+    private final Map<TileId, Image> tiles = new LinkedHashMap<>(MAX_MEMORY, 0.75f, true);
 
     /**
      * Represents a tile identifier consisting of zoom level, x-coordinate, and y-coordinate.
      */
     record TileId(int zoom, int x, int y) {
+        public TileId {
+            Preconditions.checkArgument(isValid(zoom, x, y));
+        }
+
         /**
          * Checks if the given zoom, x-coordinate, and y-coordinate values form a valid tile ID.
          *
@@ -64,8 +68,9 @@ public final class TileManager {
         String filename = "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
         String pathName = path + filename;
 
+        Image image;
         if (tiles.containsKey(tileId)) {
-            image = (Image) tiles.get(tileId);
+            image = tiles.get(tileId);
             return image;
         }
         if (Files.exists(Path.of(pathName))) {
