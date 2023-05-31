@@ -28,13 +28,26 @@ import java.util.Set;
 
 import static javafx.scene.paint.CycleMethod.NO_CYCLE;
 
+/**
+ * The aircraft controller is responsible for displaying aircraft on the map and updating their position, altitude, etc.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public final class AircraftController {
     private static final double ESTIMATED_HIGHEST_ALTITUDE = 12000;
+    private static final double ZOOM_RATIO = 1d / 3d;
     private final MapParameters mp;
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
 
     private final Pane pane = new Pane();
 
+    /**
+     * Create a new aircraft controller with the given map parameters, visible aircraft and selected aircraft.
+     *
+     * @param mp               the map parameters
+     * @param visibleAircraft  the visible aircraft
+     * @param selectedAircraft the selected aircraft
+     */
     public AircraftController(MapParameters mp, ObservableSet<ObservableAircraftState> visibleAircraft,
                               ObjectProperty<ObservableAircraftState> selectedAircraft) {
         this.mp = mp;
@@ -56,16 +69,25 @@ public final class AircraftController {
         });
     }
 
+    /**
+     * Get the pane containing the aircraft
+     *
+     * @return the pane containing the aircraft
+     */
     public Pane pane() {
         return pane;
     }
 
+    /**
+     * Get the aircraft group corresponding to the given aircraft.
+     *
+     * @param aircraft the aircraft
+     * @return the aircraft group corresponding to the given aircraft
+     */
     private Group buildAircraftGroup(ObservableAircraftState aircraft) {
         Group aircraftGroup = new Group();
         aircraftGroup.setId(aircraft.getIcaoAddress().string());
         aircraftGroup.viewOrderProperty().bind(aircraft.altitudeProperty().negate());
-
-        aircraftGroup.getChildren().add(buildTrajectoryGroup(aircraft));
 
         Group movingGroup = new Group();
 
@@ -82,12 +104,17 @@ public final class AircraftController {
                 aircraft.positionProperty()));
 
         movingGroup.getChildren().addAll(buildLabelGroup(aircraft), buildIconSvgPath(aircraft));
-
-        aircraftGroup.getChildren().add(movingGroup);
+        aircraftGroup.getChildren().addAll(buildTrajectoryGroup(aircraft), movingGroup);
 
         return aircraftGroup;
     }
 
+    /**
+     * Build the label group for the given aircraft.
+     *
+     * @param aircraft the aircraft
+     * @return the label group for the given aircraft
+     */
     private Group buildTrajectoryGroup(ObservableAircraftState aircraft) {
         Group trajectoryGroup = new Group();
         trajectoryGroup.getStyleClass().add("trajectory");
@@ -97,10 +124,8 @@ public final class AircraftController {
 
         trajectoryGroup.visibleProperty().bind(selectedAircraft.isEqualTo(aircraft));
 
-        aircraft.getTrajectory().addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change -> {
-                    trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of());
-                    //if (!trajectoryGroup.getChildren().isEmpty()) System.out.println(trajectoryGroup.getChildren().size());
-                }
+        aircraft.getTrajectory().addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
+                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of())
         );
         mp.zoomProperty().addListener(zoom ->
                 trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of())
@@ -113,6 +138,13 @@ public final class AircraftController {
         return trajectoryGroup;
     }
 
+    /**
+     * Get the trajectory lines for the given trajectory.
+     *
+     * @param mp         the map parameters
+     * @param trajectory the trajectory
+     * @return the trajectory lines for the given trajectory
+     */
     private Set<Line> getTrajectoryLines(MapParameters mp, ObservableList<ObservableAircraftState.AirbornePos> trajectory) {
         ListIterator<ObservableAircraftState.AirbornePos> iterator = trajectory.listIterator();
         Set<Line> trajectoryLines = new HashSet<>();
@@ -127,10 +159,9 @@ public final class AircraftController {
                 pos = iterator.next();
                 continue;
             }
+
             ObservableAircraftState.AirbornePos nextPos = iterator.next();
-            if (nextPos.position() == null) {
-                continue;
-            }
+            if (nextPos.position() == null) continue;
 
             Line line = new Line(
                     pos.getWebMercatorPosX(mp.getZoom()),
@@ -155,6 +186,12 @@ public final class AircraftController {
         return trajectoryLines;
     }
 
+    /**
+     * Build the label group for the given aircraft.
+     *
+     * @param aircraft the aircraft
+     * @return the label group for the given aircraft
+     */
     private Group buildLabelGroup(ObservableAircraftState aircraft) {
         Group labelGroup = new Group();
         labelGroup.getStyleClass().add("label");
@@ -166,15 +203,16 @@ public final class AircraftController {
         String registration = (aircraft.getAircraftData() != null) ? aircraft.getAircraftData().registration().string() : "";
 
         text.textProperty().bind(Bindings.createStringBinding(() -> {
-                    String firstLine = (!registration.isEmpty() ? registration
+                    String identification = (!registration.isEmpty() ? registration
                             : (aircraft.getCallSign() != null) ? aircraft.getCallSign().string()
                             : aircraft.getIcaoAddress().string());
 
                     String velocity = Double.isNaN(aircraft.getVelocity()) ? "?" :
                             String.valueOf(Math.round(Units.convert(aircraft.getVelocity(), Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR)));
+
                     String altitude = Double.isNaN(aircraft.getAltitude()) ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
 
-                    return String.format("%s\n%s km/h\u2002%s m", firstLine, velocity, altitude);
+                    return String.format("%s\n%s km/h\u2002%s m", identification, velocity, altitude);
                 },
                 aircraft.callSignProperty(),
                 aircraft.velocityProperty(),
@@ -188,21 +226,25 @@ public final class AircraftController {
         // Bind the label visibility to the zoom level and the selectedAircraft property
         labelGroup.visibleProperty().bind(mp.zoomProperty().greaterThanOrEqualTo(11).or(selectedAircraft.isEqualTo(aircraft)));
 
-        labelGroup.getChildren().add(rect);
-        labelGroup.getChildren().add(text);
+        labelGroup.getChildren().addAll(rect, text);
 
         return labelGroup;
     }
 
+    /**
+     * Build the icon SVGPath for the given aircraft.
+     *
+     * @param aircraft the aircraft
+     * @return the icon SVGPath for the given aircraft
+     */
     private SVGPath buildIconSvgPath(ObservableAircraftState aircraft) {
         SVGPath svgPath = new SVGPath();
         svgPath.getStyleClass().add("aircraft");
 
-        svgPath.setOnMouseClicked(e ->
-                selectedAircraft.set(aircraft)
-        );
+        svgPath.setOnMouseClicked(e -> setSelectedAircraft(aircraft));
 
         AircraftData data = aircraft.getAircraftData();
+
         ObjectProperty<AircraftIcon> iconProperty = new SimpleObjectProperty<>();
         iconProperty.bind(aircraft.categoryProperty().map(
                 category -> data == null
@@ -220,7 +262,22 @@ public final class AircraftController {
         return svgPath;
     }
 
+    /**
+     * Get the result of the formula given to choose the color corresponding to the altitude.
+     *
+     * @param alt the altitude
+     * @return the fraction corresponding to the altitude
+     */
     private double getFractionFromAltitude(double alt) {
-        return Math.pow(alt / ESTIMATED_HIGHEST_ALTITUDE, 1d / 3d);
+        return Math.pow(alt / ESTIMATED_HIGHEST_ALTITUDE, ZOOM_RATIO);
+    }
+
+    /**
+     * Set the selected aircraft.
+     *
+     * @param aircraft the selected aircraft
+     */
+    public void setSelectedAircraft(ObservableAircraftState aircraft) {
+        selectedAircraft.set(aircraft);
     }
 }
