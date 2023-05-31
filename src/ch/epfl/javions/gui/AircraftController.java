@@ -241,7 +241,7 @@ public final class AircraftController {
         SVGPath svgPath = new SVGPath();
         svgPath.getStyleClass().add("aircraft");
 
-        svgPath.setOnMouseClicked(e -> selectedAircraft.set(aircraft));
+        svgPath.setOnMouseClicked(e -> setSelectedAircraft(aircraft));
 
         AircraftData data = aircraft.getAircraftData();
 
@@ -270,5 +270,14 @@ public final class AircraftController {
      */
     private double getFractionFromAltitude(double alt) {
         return Math.pow(alt / ESTIMATED_HIGHEST_ALTITUDE, ZOOM_RATIO);
+    }
+
+    /**
+     * Set the selected aircraft.
+     *
+     * @param aircraft the selected aircraft
+     */
+    public void setSelectedAircraft(ObservableAircraftState aircraft) {
+        selectedAircraft.set(aircraft);
     }
 }
