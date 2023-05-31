@@ -8,9 +8,7 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.demodulation.AdsbDemodulator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
 import javafx.scene.Scene;
@@ -54,13 +52,13 @@ public final class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
         // StatusLine
         StatusLineController slc = new StatusLineController();
-        SimpleLongProperty messageCount = new SimpleLongProperty(0);
 
         long start = System.nanoTime();
         ConcurrentLinkedQueue<RawMessage> messageQueue = new ConcurrentLinkedQueue<>();
         // Read messages
-        Thread t = new Thread(() -> {
+        Thread thread = new Thread(() -> {
             List<String> arg = getParameters().getRaw();
+            System.out.println(arg.isEmpty());
             if (arg.isEmpty()) {
                 try {
                     readAllMessages(messageQueue);
@@ -75,8 +73,8 @@ public final class Main extends Application {
                 }
             }
         });
-        t.setDaemon(true);
-        t.start();
+        thread.setDaemon(true);
+        thread.start();
         // Database creation
         URL u = getClass().getResource(RESOURCE);
         assert u != null;
@@ -94,9 +92,6 @@ public final class Main extends Application {
         AircraftTableController atc = new AircraftTableController(asm.states(), sap);
 
         atc.setOnDoubleClick(aircraft -> bmc.centerOn(aircraft.getPosition()));
-
-        slc.messageCountProperty().bind(messageCount);
-        slc.aircraftCountProperty().bind(Bindings.size(asm.states()));
 
         SplitPane splitPane = new SplitPane();
         splitPane.setOrientation(Orientation.VERTICAL);
@@ -127,14 +122,16 @@ public final class Main extends Application {
                 for (int i = 0; i < 30; i += 1) {
                     if (!messageQueue.isEmpty()) {
                         Message message = MessageParser.parse(messageQueue.poll());
-                        if (message != null) asm.updateWithMessage(message);
+                        if (message != null) {
+                            System.out.println("bien");
+                            slc.messageCountProperty().add(1L);
+                            asm.updateWithMessage(message);
+                        }
                         // Purge 1 time per second aircraft for which no message has been received for one minute
                         if (System.nanoTime() - lastUpdate > ONE_SECOND) {
                             asm.purge();
                             lastUpdate = System.nanoTime();
                         }
-                        // Force tableview to refresh
-                        atc.pane().refresh();
                     }
                 }
             }
@@ -148,7 +145,6 @@ public final class Main extends Application {
             RawMessage temp;
             byte[] bytes = new byte[RawMessage.LENGTH];
             long i = 0;
-            long a = 0;
             while (i < s.available()) {
                 i++;
                 long stamp = s.readLong();
@@ -160,9 +156,6 @@ public final class Main extends Application {
                     Thread.sleep(1);
                 }
                 messageQueue.add(temp);
-                if (temp != null) {
-                    a++;
-                }
             }
         } catch (IIOException e) {
         } catch (InterruptedException e) {
