@@ -13,6 +13,12 @@ import javafx.scene.layout.Pane;
 import java.io.IOException;
 import java.util.Objects;
 
+/**
+ * A controller for a base map.
+ *
+ * @author Mateo Tiedra (356525)
+ */
+
 public final class BaseMapController {
     private final TileManager tileManager;
     private final MapParameters mp;
@@ -91,15 +97,26 @@ public final class BaseMapController {
         });
     }
 
+    /**
+     * Get the pane containing the map.
+     *
+     * @return the pane
+     */
     public Pane pane() {
         return pane;
     }
 
+    /**
+     * Call the refresh of the map on the next pulse.
+     */
     private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
     }
 
+    /**
+     * Redraw the map if needed.
+     */
     private void redrawIfNeeded() {
         if (!redrawNeeded) return;
         redrawNeeded = false;
@@ -115,9 +132,13 @@ public final class BaseMapController {
         while (xPos + xShift < mp.getMinX() + pane.getWidth()) {
             while (yPos + yShift < mp.getMinY() + pane.getHeight()) {
                 try {
-                    Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), (int) (xPos / 256), (int) (yPos / 256)));
-                    gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
+                    int xTile = (int) (xPos / 256);
+                    int yTile = (int) (yPos / 256);
 
+                    if (TileManager.TileId.isValid(mp.getZoom(), xTile, yTile)) {
+                        Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), xTile, yTile));
+                        gc.drawImage(tileImg, xPos - mp.getMinX() + xShift, yPos - mp.getMinY() + yShift);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

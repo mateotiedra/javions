@@ -14,15 +14,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is responsible for managing the aircraft states. It is responsible for updating the states with messages
+ * and purging the states that have not been updated for more than one minute.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public class AircraftStateManager {
+    private static final long ONE_MINUTE_IN_NS = (long) (Units.Time.MINUTE * Math.pow(10, 9));
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> aircraftStateAccumulatorMap = new HashMap<>();
     private final ObservableSet<ObservableAircraftState> aircraftWithKnownPositionStates = FXCollections.observableSet();
     private final ObservableSet<ObservableAircraftState> unmodifiableAircraftWithKnownPositionStates = FXCollections.unmodifiableObservableSet(aircraftWithKnownPositionStates);
 
     private final AircraftDatabase aircraftDatabase;
     private long lastMessageTimeStampNs;
-    private static final long ONE_MINUTE_IN_NS = (long) (Units.Time.MINUTE * Math.pow(10, 9));
 
+    /**
+     * @param aircraftDatabase the database to use to get the aircraft data
+     */
     public AircraftStateManager(AircraftDatabase aircraftDatabase) {
         this.aircraftDatabase = aircraftDatabase;
     }
@@ -34,6 +43,12 @@ public class AircraftStateManager {
         return unmodifiableAircraftWithKnownPositionStates;
     }
 
+    /**
+     * Updates the state of the aircraft with the given message. If the aircraft is not in the map, it is added to the
+     * map with the aircraft data from the database.
+     *
+     * @param message the message to update the state with
+     */
     public void updateWithMessage(Message message) {
         IcaoAddress icaoAddress = message.icaoAddress();
         lastMessageTimeStampNs = message.timeStampNs();
@@ -49,13 +64,18 @@ public class AircraftStateManager {
             }
         }
 
-        ObservableAircraftState state = aircraftStateAccumulatorMap.get(icaoAddress).stateSetter();
+        ObservableAircraftState state = aircraftStateAccumulatorMap.get(icaoAddress) != null
+                ? aircraftStateAccumulatorMap.get(icaoAddress).stateSetter()
+                : null;
 
-        if (state.getPosition() != null) {
+        if (state != null && state.getPosition() != null) {
             aircraftWithKnownPositionStates.add(state);
         }
     }
 
+    /**
+     * Purges the states that have not been updated for more than one minute.
+     */
     public void purge() {
         List<ObservableAircraftState> aircraftToRemoveList = aircraftWithKnownPositionStates.stream().filter(
                 state -> lastMessageTimeStampNs - state.getLastMessageTimeStampNs() > ONE_MINUTE_IN_NS

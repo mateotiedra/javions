@@ -4,7 +4,14 @@ import ch.epfl.javions.Math2;
 import ch.epfl.javions.Preconditions;
 import javafx.beans.property.*;
 
+/**
+ * A class representing the parameters of a map.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public final class MapParameters {
+
+    private static final int MIN_ZOOM = 6, MAX_ZOOM = 19;
     private final IntegerProperty zoom = new SimpleIntegerProperty();
     private final DoubleProperty minX = new SimpleDoubleProperty(), minY = new SimpleDoubleProperty();
 
@@ -41,7 +48,7 @@ public final class MapParameters {
     }
 
     /**
-     * Get the x value of the top left corner of the map property.
+     * Get the property of the x value of the top left corner of the map.
      *
      * @return the x value of the top left corner of the map property
      */
@@ -59,14 +66,13 @@ public final class MapParameters {
     }
 
     /**
-     * Get the y value of the top left corner of the map property.
+     * Get the property of the y value of the top left corner of the map.
      *
      * @return the y value of the top left corner of the map property
      */
     public ReadOnlyDoubleProperty minYProperty() {
         return minY;
     }
-
 
     /**
      * Get the y value of the top left corner of the map.
@@ -95,7 +101,7 @@ public final class MapParameters {
      */
     public void changeZoomLevel(int deltaZoom) {
         int oldZoom = getZoom();
-        zoom.set(Math2.clamp(6, oldZoom + deltaZoom, 19));
+        zoom.set(Math2.clamp(MIN_ZOOM, oldZoom + deltaZoom, MAX_ZOOM));
         int clampedDeltaZoom = getZoom() - oldZoom;
 
         minX.set(Math.scalb(minX.get(), clampedDeltaZoom));

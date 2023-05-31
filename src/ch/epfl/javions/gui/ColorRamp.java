@@ -4,14 +4,31 @@ import ch.epfl.javions.Math2;
 import ch.epfl.javions.Preconditions;
 import javafx.scene.paint.Color;
 
+/**
+ * A color ramp is a sequence of colors that can be used to interpolate a color at a given fraction.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public final class ColorRamp {
     private final Color[] colors;
 
+    /**
+     * Creates a color ramp from the given colors.
+     *
+     * @param colors the colors of the ramp
+     * @throws IllegalArgumentException if the number of colors is less than 2
+     */
     public ColorRamp(Color... colors) {
         Preconditions.checkArgument(colors.length >= 2);
         this.colors = colors.clone();
     }
 
+    /**
+     * Returns the color at the given fraction of the ramp.
+     *
+     * @param fraction the fraction of the ramp
+     * @return the color at the given fraction of the ramp
+     */
     public Color at(double fraction) {
         int c1Index = Math2.clamp(0, (int) (fraction * (colors.length - 1)), colors.length - 1);
         int c2Index = Math2.clamp(0, (int) (fraction * (colors.length - 1)) + 1, colors.length - 1);
