@@ -14,7 +14,10 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
 import javax.imageio.IIOException;
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -62,14 +65,13 @@ public class TestAircraftController extends Application {
         var db = new AircraftDatabase(f);
 
         AircraftStateManager asm = new AircraftStateManager(db);
-        ObjectProperty<ObservableAircraftState> sap =
-                new SimpleObjectProperty<>();
+        ObjectProperty<ObservableAircraftState> sap = new SimpleObjectProperty<>();
+
         Path tileCache = Path.of("tile-cache");
-        TileManager tm =
-                new TileManager(tileCache, "tile.openstreetmap.org");
-        MapParameters mp =
-                new MapParameters(17, 17_389_327, 11_867_430);
+        TileManager tm = new TileManager(tileCache, "tile.openstreetmap.org");
+        MapParameters mp = new MapParameters(17, 17_389_327, 11_867_430);
         BaseMapController bmc = new BaseMapController(tm, mp);
+
         AircraftController ac = new AircraftController(mp, asm.states(), sap);
         var root = new StackPane(bmc.pane(), ac.pane());
         primaryStage.setScene(new Scene(root));

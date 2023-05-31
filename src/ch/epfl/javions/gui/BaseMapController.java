@@ -3,7 +3,10 @@ package ch.epfl.javions.gui;
 import ch.epfl.javions.GeoPos;
 import ch.epfl.javions.WebMercator;
 import javafx.application.Platform;
-import javafx.beans.property.*;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleLongProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -135,7 +138,7 @@ public final class BaseMapController {
      *
      * @param newCenter the new center position
      */
-    public void centerOne(GeoPos newCenter) {
+    public void centerOn(GeoPos newCenter) {
         double newX = WebMercator.x(mp.getZoom(), newCenter.longitude());
         double newY = WebMercator.y(mp.getZoom(), newCenter.latitude());
 
