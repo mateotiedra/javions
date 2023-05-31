@@ -8,6 +8,7 @@ import ch.epfl.javions.aircraft.AircraftDatabase;
 import ch.epfl.javions.demodulation.AdsbDemodulator;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
@@ -58,7 +59,6 @@ public final class Main extends Application {
         // Read messages
         Thread thread = new Thread(() -> {
             List<String> arg = getParameters().getRaw();
-            System.out.println(arg.isEmpty());
             if (arg.isEmpty()) {
                 try {
                     readAllMessages(messageQueue);
@@ -91,6 +91,7 @@ public final class Main extends Application {
         AircraftController ac = new AircraftController(mp, asm.states(), sap);
         AircraftTableController atc = new AircraftTableController(asm.states(), sap);
 
+        slc.aircraftCountProperty().bind(Bindings.size(asm.states()));
         atc.setOnDoubleClick(aircraft -> bmc.centerOn(aircraft.getPosition()));
 
         SplitPane splitPane = new SplitPane();
@@ -123,8 +124,7 @@ public final class Main extends Application {
                     if (!messageQueue.isEmpty()) {
                         Message message = MessageParser.parse(messageQueue.poll());
                         if (message != null) {
-                            System.out.println("bien");
-                            slc.messageCountProperty().add(1L);
+                            slc.messageCountProperty().set(slc.messageCountProperty().get() + 1);
                             asm.updateWithMessage(message);
                         }
                         // Purge 1 time per second aircraft for which no message has been received for one minute
@@ -162,34 +162,7 @@ public final class Main extends Application {
             throw new RuntimeException(e);
         }
     }
-
-    /*
-    // Lecture des messages des fichiers
-    private static List<RawMessage> readAllMessages(String fileName)
-            throws IOException {
-        List<RawMessage> list = new ArrayList<>();
-
-        try (DataInputStream s = new DataInputStream(
-                new BufferedInputStream(
-                        new FileInputStream(fileName)))) {
-            RawMessage temp;
-            byte[] bytes = new byte[RawMessage.LENGTH];
-            int i = 0;
-            while (i < s.available()) {
-                i++;
-                long stamp = s.readLong();
-                int bytesRead = s.readNBytes(bytes, 0, bytes.length);
-                assert bytesRead == RawMessage.LENGTH;
-                ByteString message = new ByteString(bytes);
-                temp = new RawMessage(stamp, message);
-                list.add(temp);
-            }
-        } catch (IIOException e) {
-            System.out.println("File not found");
-        }
-        return list;
-    }
-    */
+    
     // Lecture des messages de la console
     private static void readAllMessages(ConcurrentLinkedQueue<RawMessage> messagesQueue) throws IOException {
         AdsbDemodulator demodulator = new AdsbDemodulator(System.in);
