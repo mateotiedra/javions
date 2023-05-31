@@ -97,7 +97,8 @@ public final class MapParameters {
     /**
      * Change the zoom level by the given delta zoom level.
      *
-     * @param deltaZoom the delta zoom level, positive for zooming in, negative for zooming out. Will set it min at 6 and max at 19.
+     * @param deltaZoom the delta zoom level,positive for zooming in, negative for zooming out.
+     *                  Will set it min at 6 and max at 19.
      */
     public void changeZoomLevel(int deltaZoom) {
         int oldZoom = getZoom();

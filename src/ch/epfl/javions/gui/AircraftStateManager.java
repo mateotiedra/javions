@@ -22,9 +22,11 @@ import java.util.Map;
  */
 public class AircraftStateManager {
     private static final long ONE_MINUTE_IN_NS = (long) (Units.Time.MINUTE * Math.pow(10, 9));
-    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> aircraftStateAccumulatorMap = new HashMap<>();
+    private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> aircraftStateAccumulatorMap
+            = new HashMap<>();
     private final ObservableSet<ObservableAircraftState> aircraftWithKnownPositionStates = FXCollections.observableSet();
-    private final ObservableSet<ObservableAircraftState> unmodifiableAircraftWithKnownPositionStates = FXCollections.unmodifiableObservableSet(aircraftWithKnownPositionStates);
+    private final ObservableSet<ObservableAircraftState> unmodifiableAircraftWithKnownPositionStates
+            = FXCollections.unmodifiableObservableSet(aircraftWithKnownPositionStates);
 
     private final AircraftDatabase aircraftDatabase;
     private long lastMessageTimeStampNs;
@@ -58,15 +60,18 @@ public class AircraftStateManager {
         } else {
             try {
                 AircraftData aircraftData = aircraftDatabase.get(icaoAddress);
-                aircraftStateAccumulatorMap.put(icaoAddress, new AircraftStateAccumulator<>(new ObservableAircraftState(icaoAddress, aircraftData)));
+                aircraftStateAccumulatorMap.put(
+                        icaoAddress,
+                        new AircraftStateAccumulator<>(new ObservableAircraftState(icaoAddress, aircraftData))
+                );
             } catch (IOException e) {
                 System.out.println("Database not found\n");
             }
         }
 
-        ObservableAircraftState state = aircraftStateAccumulatorMap.get(icaoAddress) != null
-                ? aircraftStateAccumulatorMap.get(icaoAddress).stateSetter()
-                : null;
+        ObservableAircraftState state = aircraftStateAccumulatorMap.get(icaoAddress) == null
+                ? null
+                : aircraftStateAccumulatorMap.get(icaoAddress).stateSetter();
 
         if (state != null && state.getPosition() != null) {
             aircraftWithKnownPositionStates.add(state);

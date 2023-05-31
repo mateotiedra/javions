@@ -23,6 +23,7 @@ import java.util.Objects;
  */
 
 public final class BaseMapController {
+    private static final int MIN_TIME_BETWEEN_SCROLLS_IN_MS = 100;
     private final TileManager tileManager;
     private final MapParameters mp;
     private final Pane pane = new Pane();
@@ -66,15 +67,15 @@ public final class BaseMapController {
      * @param mp   the map parameters
      */
     private void setZoomManager(Pane pane, MapParameters mp) {
-        final LongProperty minScrollTime = new SimpleLongProperty();
+        final LongProperty minTimeForNextScroll = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             int zoomDelta = (int) Math.signum(e.getDeltaY());
             if (zoomDelta == 0) return;
 
             long currentTime = System.currentTimeMillis();
-            if (currentTime < minScrollTime.get()) return;
+            if (currentTime < minTimeForNextScroll.get()) return;
+            minTimeForNextScroll.set(currentTime + MIN_TIME_BETWEEN_SCROLLS_IN_MS);
 
-            minScrollTime.set(currentTime + 100);
             mp.scroll(-e.getX(), -e.getY());
             mp.changeZoomLevel(zoomDelta);
             mp.scroll(e.getX(), e.getY());
