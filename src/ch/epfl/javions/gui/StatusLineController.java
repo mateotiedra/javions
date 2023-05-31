@@ -1,5 +1,7 @@
 package ch.epfl.javions.gui;
 
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.LongProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.scene.layout.BorderPane;
@@ -8,24 +10,22 @@ import javafx.scene.text.Text;
 
 public final class StatusLineController {
     private final Pane pane;
-    private SimpleIntegerProperty aircraftCount;
-    private SimpleLongProperty messageCount;
+    private final IntegerProperty aircraftCount = new SimpleIntegerProperty();
+    private final LongProperty messageCount = new SimpleLongProperty();
 
     public StatusLineController() {
-        pane = new Pane();
-        aircraftCount = new SimpleIntegerProperty();
-        messageCount = new SimpleLongProperty();
+        pane = createStatusPane();
     }
 
     public Pane pane() {
         return pane;
     }
 
-    public SimpleIntegerProperty aircraftCountProperty() {
+    public IntegerProperty aircraftCountProperty() {
         return aircraftCount;
     }
 
-    public SimpleLongProperty messageCountProperty() {
+    public LongProperty messageCountProperty() {
         return messageCount;
     }
 
