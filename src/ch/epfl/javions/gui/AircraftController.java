@@ -64,7 +64,8 @@ public final class AircraftController {
             if (change.wasAdded()) {
                 pane.getChildren().add(buildAircraftGroup(change.getElementAdded()));
             } else if (change.wasRemoved()) {
-                pane.getChildren().removeIf(group -> group.getId().equals(change.getElementRemoved().getIcaoAddress().string()));
+                pane.getChildren().removeIf(group
+                        -> group.getId().equals(change.getElementRemoved().getIcaoAddress().string()));
             }
         });
     }
@@ -125,14 +126,20 @@ public final class AircraftController {
         trajectoryGroup.visibleProperty().bind(selectedAircraft.isEqualTo(aircraft));
 
         aircraft.getTrajectory().addListener((ListChangeListener<ObservableAircraftState.AirbornePos>) change ->
-                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of())
+                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible()
+                        ? getTrajectoryLines(mp, aircraft.getTrajectory())
+                        : Set.of())
         );
         mp.zoomProperty().addListener(zoom ->
-                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of())
+                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible()
+                        ? getTrajectoryLines(mp, aircraft.getTrajectory())
+                        : Set.of())
         );
         selectedAircraft.addListener((observable, oldValue, newValue) -> {
             if (newValue.equals(aircraft))
-                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible() ? getTrajectoryLines(mp, aircraft.getTrajectory()) : Set.of());
+                trajectoryGroup.getChildren().setAll(trajectoryGroup.isVisible()
+                        ? getTrajectoryLines(mp, aircraft.getTrajectory())
+                        : Set.of());
         });
 
         return trajectoryGroup;
@@ -145,7 +152,9 @@ public final class AircraftController {
      * @param trajectory the trajectory
      * @return the trajectory lines for the given trajectory
      */
-    private Set<Line> getTrajectoryLines(MapParameters mp, ObservableList<ObservableAircraftState.AirbornePos> trajectory) {
+    private Set<Line> getTrajectoryLines(
+            MapParameters mp,
+            ObservableList<ObservableAircraftState.AirbornePos> trajectory) {
         ListIterator<ObservableAircraftState.AirbornePos> iterator = trajectory.listIterator();
         Set<Line> trajectoryLines = new HashSet<>();
         if (!iterator.hasNext()) {
@@ -200,17 +209,24 @@ public final class AircraftController {
         Text text = new Text();
 
         // Bind the label text to the aircraft data and the speed and altitude properties
-        String registration = (aircraft.getAircraftData() != null) ? aircraft.getAircraftData().registration().string() : "";
+        String registration = (aircraft.getAircraftData() == null)
+                ? ""
+                : aircraft.getAircraftData().registration().string();
+
 
         text.textProperty().bind(Bindings.createStringBinding(() -> {
                     String identification = (!registration.isEmpty() ? registration
                             : (aircraft.getCallSign() != null) ? aircraft.getCallSign().string()
                             : aircraft.getIcaoAddress().string());
 
-                    String velocity = Double.isNaN(aircraft.getVelocity()) ? "?" :
-                            String.valueOf(Math.round(Units.convert(aircraft.getVelocity(), Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR)));
+                    String velocity = Double.isNaN(aircraft.getVelocity())
+                            ? "?" :
+                            String.valueOf(Math.round(Units.convert(aircraft.getVelocity(),
+                                    Units.Speed.METER_PER_SECOND,
+                                    Units.Speed.KILOMETER_PER_HOUR)));
 
-                    String altitude = Double.isNaN(aircraft.getAltitude()) ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
+                    String altitude = Double.isNaN(aircraft.getAltitude())
+                            ? "?" : String.valueOf(Math.round(aircraft.getAltitude()));
 
                     return String.format("%s\n%s km/h\u2002%s m", identification, velocity, altitude);
                 },
@@ -224,7 +240,9 @@ public final class AircraftController {
         rect.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + 4));
 
         // Bind the label visibility to the zoom level and the selectedAircraft property
-        labelGroup.visibleProperty().bind(mp.zoomProperty().greaterThanOrEqualTo(11).or(selectedAircraft.isEqualTo(aircraft)));
+        labelGroup.visibleProperty().bind(
+                mp.zoomProperty().greaterThanOrEqualTo(11).or(selectedAircraft.isEqualTo(aircraft))
+        );
 
         labelGroup.getChildren().addAll(rect, text);
 
@@ -247,17 +265,29 @@ public final class AircraftController {
 
         ObjectProperty<AircraftIcon> iconProperty = new SimpleObjectProperty<>();
         iconProperty.bind(aircraft.categoryProperty().map(
-                category -> data == null
-                        ? AircraftIcon.iconFor(new AircraftTypeDesignator(""), new AircraftDescription(""), aircraft.getCategory(), WakeTurbulenceCategory.UNKNOWN)
-                        : AircraftIcon.iconFor(data.typeDesignator(), data.description(), aircraft.getCategory(), data.wakeTurbulenceCategory())
+                category -> data == null ?
+                        AircraftIcon.iconFor(
+                                new AircraftTypeDesignator(""),
+                                new AircraftDescription(""),
+                                aircraft.getCategory(),
+                                WakeTurbulenceCategory.UNKNOWN) :
+                        AircraftIcon.iconFor(
+                                data.typeDesignator(),
+                                data.description(),
+                                aircraft.getCategory(),
+                                data.wakeTurbulenceCategory())
         ));
 
         svgPath.contentProperty().bind(iconProperty.map(AircraftIcon::svgPath));
         svgPath.rotateProperty().bind(Bindings.createDoubleBinding(
-                () -> iconProperty.get().canRotate() ? Units.convert(aircraft.getTrackOrHeading(), Units.Angle.RADIAN, Units.Angle.DEGREE) : 0,
+                () -> iconProperty.get().canRotate()
+                        ? Units.convert(aircraft.getTrackOrHeading(), Units.Angle.RADIAN, Units.Angle.DEGREE)
+                        : 0,
                 iconProperty,
                 aircraft.trackOrHeadingProperty()));
-        svgPath.fillProperty().bind(aircraft.altitudeProperty().map(alt -> ColorRamp.PLASMA.at(getFractionFromAltitude(alt.doubleValue()))));
+        svgPath.fillProperty().bind(
+                aircraft.altitudeProperty().map(alt -> ColorRamp.PLASMA.at(getFractionFromAltitude(alt.doubleValue())))
+        );
 
         return svgPath;
     }

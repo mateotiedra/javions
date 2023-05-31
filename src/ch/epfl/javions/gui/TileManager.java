@@ -68,14 +68,14 @@ public final class TileManager {
         String filename = "/" + tileId.zoom + "/" + tileId.x + "/" + tileId.y + ".png";
         String pathName = path + filename;
 
-        Image image;
         if (tiles.containsKey(tileId)) {
-            image = tiles.get(tileId);
-            return image;
+            return tiles.get(tileId);
         }
+
+        Image image;
         if (Files.exists(Path.of(pathName))) {
             image = new Image(new FileInputStream(pathName));
-            if ((tiles.size() == MAX_MEMORY)) {
+            if (tiles.size() == MAX_MEMORY) {
                 tiles.remove(tiles.keySet().iterator().next());
             }
             tiles.put(tileId, image);
