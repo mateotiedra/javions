@@ -145,15 +145,17 @@ public final class Main extends Application {
             long i = 0;
             while (i < s.available()) {
                 i++;
+                long lastmessage = 0;
                 long stamp = s.readLong();
                 int bytesRead = s.readNBytes(bytes, 0, bytes.length);
                 assert bytesRead == RawMessage.LENGTH;
                 ByteString message = new ByteString(bytes);
                 temp = new RawMessage(stamp, message);
-                while (temp.timeStampNs() > (System.nanoTime() - start)) {
-                    Thread.sleep(1);
-                }
                 messageQueue.add(temp);
+                while (temp.timeStampNs() > (System.nanoTime() - start)) {
+                    Thread.sleep((long) ((temp.timeStampNs() - lastmessage) * Math.pow(10, -6)));
+                    lastmessage = temp.timeStampNs();
+                }
             }
         } catch (InterruptedException e) {
             throw new Error(e);
