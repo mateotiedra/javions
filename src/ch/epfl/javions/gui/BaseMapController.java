@@ -76,9 +76,9 @@ public final class BaseMapController {
             if (currentTime < minTimeForNextScroll.get()) return;
             minTimeForNextScroll.set(currentTime + MIN_TIME_BETWEEN_SCROLLS_IN_MS);
 
-            mp.scroll(-e.getX(), -e.getY());
-            mp.changeZoomLevel(zoomDelta);
             mp.scroll(e.getX(), e.getY());
+            mp.changeZoomLevel(zoomDelta);
+            mp.scroll(-e.getX(), -e.getY());
         });
     }
 
@@ -93,8 +93,8 @@ public final class BaseMapController {
         pane.setOnMousePressed(e -> lastMousePos.set(new Point2D(e.getX(), e.getY())));
 
         pane.setOnMouseDragged(e -> {
-            double deltaX = e.getX() - lastMousePos.get().getX();
-            double deltaY = e.getY() - lastMousePos.get().getY();
+            double deltaX = lastMousePos.get().getX() - e.getX();
+            double deltaY = lastMousePos.get().getY() - e.getY();
 
             mp.scroll(deltaX, deltaY);
             lastMousePos.set(new Point2D(e.getX(), e.getY()));

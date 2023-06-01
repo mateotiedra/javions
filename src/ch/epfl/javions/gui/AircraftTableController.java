@@ -36,9 +36,10 @@ public final class AircraftTableController {
             ObservableSet<ObservableAircraftState> observableAircraftState,
             ObjectProperty<ObservableAircraftState> selectedAircraft
     ) {
-        this.tableView = new TableView<>();
+        tableView = new TableView<>();
         this.selectedAircraft = selectedAircraft;
 
+        // Listeners
         observableAircraftState.addListener((SetChangeListener<ObservableAircraftState>) change -> {
             if (change.wasAdded()) {
                 tableView.getItems().add(change.getElementAdded());
@@ -48,6 +49,19 @@ public final class AircraftTableController {
             }
         });
 
+        selectedAircraft.addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && !newValue.equals(oldValue)) {
+                tableView.getSelectionModel().select(newValue);
+                tableView.scrollTo(newValue);
+            }
+        });
+
+        tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null)
+                selectedAircraft.set(newValue);
+        });
+
+        // Styles
         tableView.getStylesheets().add("table.css");
         tableView.setTableMenuButtonVisible(true);
         tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
@@ -71,7 +85,7 @@ public final class AircraftTableController {
      */
     public void setOnDoubleClick(Consumer<ObservableAircraftState> consumer) {
         tableView.setOnMouseClicked(event -> {
-            if (event.getClickCount() == 2 && selectedAircraft != null)
+            if (event.getClickCount() == 2 && selectedAircraft.get() != null)
                 consumer.accept(selectedAircraft.get());
         });
     }

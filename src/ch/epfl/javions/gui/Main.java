@@ -80,16 +80,17 @@ public final class Main extends Application {
         assert u != null;
         Path p = Path.of(u.toURI());
         AircraftDatabase db = new AircraftDatabase(p.toString());
-        ObjectProperty<ObservableAircraftState> sap = new SimpleObjectProperty<>();
+        ObjectProperty<ObservableAircraftState> sop = new SimpleObjectProperty<>();
         AircraftStateManager asm = new AircraftStateManager(db);
         // Tile
         Path tileCache = Path.of(CACHE_FOLDER);
         TileManager tm = new TileManager(tileCache, TILE_SERVER_URL);
         MapParameters mp = new MapParameters(INITIAL_ZOOM_LEVEL, X_LEFT_TOP_CORNER, Y_LEFT_TOP_CORNER);
+
         // Controller
         BaseMapController bmc = new BaseMapController(tm, mp);
-        AircraftController ac = new AircraftController(mp, asm.states(), sap);
-        AircraftTableController atc = new AircraftTableController(asm.states(), sap);
+        AircraftController ac = new AircraftController(mp, asm.states(), sop);
+        AircraftTableController atc = new AircraftTableController(asm.states(), sop);
 
         slc.aircraftCountProperty().bind(Bindings.size(asm.states()));
         atc.setOnDoubleClick(aircraft -> bmc.centerOn(aircraft.getPosition()));
@@ -162,7 +163,7 @@ public final class Main extends Application {
             throw new RuntimeException(e);
         }
     }
-    
+
     // Lecture des messages de la console
     private static void readAllMessages(ConcurrentLinkedQueue<RawMessage> messagesQueue) throws IOException {
         AdsbDemodulator demodulator = new AdsbDemodulator(System.in);
