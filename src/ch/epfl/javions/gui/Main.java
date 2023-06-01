@@ -18,7 +18,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
-import javax.imageio.IIOException;
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
@@ -121,25 +120,23 @@ public final class Main extends Application {
              */
             @Override
             public void handle(long now) {
-                for (int i = 0; i < 30; i += 1) {
-                    if (!messageQueue.isEmpty()) {
-                        Message message = MessageParser.parse(messageQueue.poll());
-                        if (message != null) {
-                            slc.messageCountProperty().set(slc.messageCountProperty().get() + 1);
-                            asm.updateWithMessage(message);
-                        }
-                        // Purge 1 time per second aircraft for which no message has been received for one minute
-                        if (System.nanoTime() - lastUpdate > ONE_SECOND) {
-                            asm.purge();
-                            lastUpdate = System.nanoTime();
-                        }
+                if (!messageQueue.isEmpty()) {
+                    Message message = MessageParser.parse(messageQueue.poll());
+                    if (message != null) {
+                        slc.messageCountProperty().set(slc.messageCountProperty().get() + 1);
+                        asm.updateWithMessage(message);
+                    }
+                    // Purge 1 time per second aircraft for which no message has been received for one minute
+                    if (System.nanoTime() - lastUpdate > ONE_SECOND) {
+                        asm.purge();
+                        lastUpdate = System.nanoTime();
                     }
                 }
             }
         }.start();
     }
 
-    public void readAllMessages(String fileName, ConcurrentLinkedQueue messageQueue, long start) throws IOException {
+    public void readAllMessages(String fileName, ConcurrentLinkedQueue<RawMessage> messageQueue, long start) throws IOException {
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
                         new FileInputStream(fileName)))) {
@@ -158,9 +155,8 @@ public final class Main extends Application {
                 }
                 messageQueue.add(temp);
             }
-        } catch (IIOException e) {
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new Error(e);
         }
     }
 
