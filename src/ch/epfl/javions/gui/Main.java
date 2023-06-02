@@ -67,7 +67,7 @@ public final class Main extends Application {
                 }
             } else {
                 try {
-                    readAllMessages(arg.get(0), messageQueue, start);
+                    readAllMessages(arg.get(0), messageQueue);
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -137,25 +137,26 @@ public final class Main extends Application {
         }.start();
     }
 
-    public void readAllMessages(String fileName, ConcurrentLinkedQueue<RawMessage> messageQueue, long start) throws IOException {
+    public void readAllMessages(String fileName, ConcurrentLinkedQueue<RawMessage> messageQueue) throws IOException {
         try (DataInputStream s = new DataInputStream(
                 new BufferedInputStream(
                         new FileInputStream(fileName)))) {
             RawMessage temp;
             byte[] bytes = new byte[RawMessage.LENGTH];
             long i = 0;
+            long lastMessageTimeStampNs = 0;
+            long delta;
             while (i < s.available()) {
                 ++i;
-                long lastMessageTimeStampNs = 0;
-                long stamp = s.readLong();
+                long timeStamp = s.readLong();
                 int bytesRead = s.readNBytes(bytes, 0, RawMessage.LENGTH);
                 ByteString message = new ByteString(bytes);
-                temp = new RawMessage(stamp, message);
+                assert bytesRead == RawMessage.LENGTH;
+                temp = new RawMessage(timeStamp, message);
                 messageQueue.add(temp);
-                while (temp.timeStampNs() > (System.nanoTime() - start)) {
-                    Thread.sleep((Units.convert(temp.timeStampNs() - lastMessageTimeStampNs, Units.Time.NANOSECOND, Units.Time.MILLISECOND)));
-                    lastMessageTimeStampNs = temp.timeStampNs();
-                }
+                delta = temp.timeStampNs() - lastMessageTimeStampNs;
+                Thread.sleep((Units.convert(delta, Units.Time.NANOSECOND, Units.Time.MILLISECOND)));
+                lastMessageTimeStampNs = temp.timeStampNs();
             }
         } catch (InterruptedException e) {
             throw new Error(e);
@@ -170,6 +171,4 @@ public final class Main extends Application {
             messagesQueue.add(temp);
         }
     }
-
 }
-
