@@ -1,6 +1,7 @@
 package ch.epfl.javions.gui;
 
 import ch.epfl.javions.ByteString;
+import ch.epfl.javions.Units;
 import ch.epfl.javions.adsb.Message;
 import ch.epfl.javions.adsb.MessageParser;
 import ch.epfl.javions.adsb.RawMessage;
@@ -144,17 +145,16 @@ public final class Main extends Application {
             byte[] bytes = new byte[RawMessage.LENGTH];
             long i = 0;
             while (i < s.available()) {
-                i++;
-                long lastmessage = 0;
+                ++i;
+                long lastMessageTimeStampNs = 0;
                 long stamp = s.readLong();
-                int bytesRead = s.readNBytes(bytes, 0, bytes.length);
-                assert bytesRead == RawMessage.LENGTH;
+                int bytesRead = s.readNBytes(bytes, 0, RawMessage.LENGTH);
                 ByteString message = new ByteString(bytes);
                 temp = new RawMessage(stamp, message);
                 messageQueue.add(temp);
                 while (temp.timeStampNs() > (System.nanoTime() - start)) {
-                    Thread.sleep((long) ((temp.timeStampNs() - lastmessage) * Math.pow(10, -6)));
-                    lastmessage = temp.timeStampNs();
+                    Thread.sleep((Units.convert(temp.timeStampNs() - lastMessageTimeStampNs, Units.Time.NANOSECOND, Units.Time.MILLISECOND)));
+                    lastMessageTimeStampNs = temp.timeStampNs();
                 }
             }
         } catch (InterruptedException e) {

@@ -130,14 +130,14 @@ public final class BaseMapController {
         double xPos = mp.getMinX();
         double yPos = mp.getMinY();
 
-        double xShift = Math.floor(xPos / 256) * 256 - mp.getMinX();
-        double yShift = Math.floor(yPos / 256) * 256 - mp.getMinY();
+        double xShift = Math.floor(xPos / TileManager.TILE_SIZE) * TileManager.TILE_SIZE - mp.getMinX();
+        double yShift = Math.floor(yPos / TileManager.TILE_SIZE) * TileManager.TILE_SIZE - mp.getMinY();
 
         while (xPos + xShift < mp.getMinX() + pane.getWidth()) {
             while (yPos + yShift < mp.getMinY() + pane.getHeight()) {
                 try {
-                    int xTile = (int) (xPos / 256);
-                    int yTile = (int) (yPos / 256);
+                    int xTile = (int) (xPos / TileManager.TILE_SIZE);
+                    int yTile = (int) (yPos / TileManager.TILE_SIZE);
 
                     if (TileManager.TileId.isValid(mp.getZoom(), xTile, yTile)) {
                         Image tileImg = tileManager.imageForTileAt(new TileManager.TileId(mp.getZoom(), xTile, yTile));

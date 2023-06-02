@@ -18,6 +18,8 @@ import java.util.Map;
  */
 public final class TileManager {
     public static final double TILE_SIZE = 256;
+    public static final int MIN_VALID_ZOOM = 0;
+    public static final int MAX_VALID_ZOOM = 19;
     private final Path path;
     private final String server;
 
@@ -41,7 +43,7 @@ public final class TileManager {
          * @return true if the tile ID is valid, false otherwise
          */
         public static boolean isValid(int zoom, int x, int y) {
-            return zoom >= 0 && zoom < 20 && x >= 0 && x < (1 << zoom) && y >= 0 && y < (1 << zoom);
+            return MIN_VALID_ZOOM <= zoom && zoom <= MAX_VALID_ZOOM && 0 <= x && x < (1 << zoom) && 0 <= y && y < (1 << zoom);
         }
     }
 

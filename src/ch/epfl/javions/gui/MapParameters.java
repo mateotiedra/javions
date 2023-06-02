@@ -23,7 +23,9 @@ public final class MapParameters {
      * @param minY the y value of the top left corner of the map
      */
     public MapParameters(int zoom, double minX, double minY) {
-        Preconditions.checkArgument(zoom >= 6 && zoom <= 19);
+        Preconditions.checkArgument(MIN_ZOOM <= zoom && zoom <= MAX_ZOOM);
+        Preconditions.checkArgument(minX >= 0 && minY >= 0);
+        
         this.zoom.set(zoom);
         this.minX.set(minX);
         this.minY.set(minY);

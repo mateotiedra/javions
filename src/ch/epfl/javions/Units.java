@@ -54,6 +54,8 @@ public final class Units {
         }
 
         public static final double SECOND = 1;
+        public static final double NANOSECOND = 1e-9 * SECOND;
+        public static final double MILLISECOND = 1e-3 * SECOND;
         public static final double MINUTE = 60 * SECOND;
         public static final double HOUR = 60 * MINUTE;
     }
@@ -80,9 +82,23 @@ public final class Units {
      * @throws IllegalArgumentException if either fromUnit or toUnit is zero.
      **/
     public static double convert(double value, double fromUnit, double toUnit) {
+        Preconditions.checkArgument(fromUnit != 0 && toUnit != 0);
         return value * (fromUnit / toUnit);
     }
 
+    /**
+     * Converts a value from one unit to another unit using the conversion ratio.
+     *
+     * @param value    The value to be converted.
+     * @param fromUnit The conversion ratio from the current unit to the base unit.
+     * @param toUnit   The conversion ratio of the target unit to the base unit.
+     * @return The converted value in the target unit.
+     * @throws IllegalArgumentException if either fromUnit or toUnit is zero.
+     **/
+    public static long convert(long value, double fromUnit, double toUnit) {
+        Preconditions.checkArgument(fromUnit != 0 && toUnit != 0);
+        return (long) (value * (fromUnit / toUnit));
+    }
 
     /**
      * Converts a value from one unit to its base unit.

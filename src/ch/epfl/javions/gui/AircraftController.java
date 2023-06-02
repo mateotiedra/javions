@@ -36,6 +36,8 @@ import static javafx.scene.paint.CycleMethod.NO_CYCLE;
 public final class AircraftController {
     private static final double ESTIMATED_HIGHEST_ALTITUDE = 12000;
     private static final double ZOOM_RATIO = 1d / 3d;
+    private static final int BORDER_MARGIN = 4;
+    private static final int DISPLAY_LABEL_ZOOM_THRESHOLD = 11;
     private final MapParameters mp;
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
 
@@ -236,12 +238,12 @@ public final class AircraftController {
         ));
 
         // Bind the rect width to the text width
-        rect.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + 4));
-        rect.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + 4));
+        rect.widthProperty().bind(text.layoutBoundsProperty().map(b -> b.getWidth() + BORDER_MARGIN));
+        rect.heightProperty().bind(text.layoutBoundsProperty().map(b -> b.getHeight() + BORDER_MARGIN));
 
         // Bind the label visibility to the zoom level and the selectedAircraft property
         labelGroup.visibleProperty().bind(
-                mp.zoomProperty().greaterThanOrEqualTo(11).or(selectedAircraft.isEqualTo(aircraft))
+                mp.zoomProperty().greaterThanOrEqualTo(DISPLAY_LABEL_ZOOM_THRESHOLD).or(selectedAircraft.isEqualTo(aircraft))
         );
 
         labelGroup.getChildren().addAll(rect, text);
