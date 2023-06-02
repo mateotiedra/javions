@@ -9,6 +9,11 @@ import java.util.Map;
 
 import static ch.epfl.javions.aircraft.WakeTurbulenceCategory.HEAVY;
 
+/**
+ * An enum representing the different aircraft icons.
+ *
+ * @author Mateo Tiedra (356525)
+ */
 public enum AircraftIcon {
     AIRLINER("""
             M 0.01 14.75 c -0.26 0 -0.74 -0.71 -0.86 -1.41 l -3.33 0.86 L -4.5
