@@ -21,7 +21,8 @@ import java.util.Map;
  * @author Mateo Tiedra (356525)
  */
 public class AircraftStateManager {
-    private static final long ONE_MINUTE_IN_NS = (long) (Units.Time.MINUTE * Math.pow(10, 9));
+    private static final long ONE_MINUTE_IN_NS = Units.convert(1, Units.Time.MINUTE, Units.Time.NANOSECOND);
+
     private final Map<IcaoAddress, AircraftStateAccumulator<ObservableAircraftState>> aircraftStateAccumulatorMap
             = new HashMap<>();
     private final ObservableSet<ObservableAircraftState> aircraftWithKnownPositionStates = FXCollections.observableSet();
