@@ -21,8 +21,8 @@ import java.util.function.Consumer;
  */
 public final class AircraftTableController {
     private final TableView<ObservableAircraftState> tableView;
-    private final NumberFormat longAndLatFormater = NumberFormat.getInstance();
-    private final NumberFormat altAndVitFormater = NumberFormat.getInstance();
+    private final NumberFormat longAndLatFormatter = NumberFormat.getInstance();
+    private final NumberFormat altAndVitFormatter = NumberFormat.getInstance();
     private final ObjectProperty<ObservableAircraftState> selectedAircraft;
 
     /**
@@ -57,8 +57,7 @@ public final class AircraftTableController {
         });
 
         tableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null)
-                selectedAircraft.set(newValue);
+            if (newValue != null) selectedAircraft.set(newValue);
         });
 
         // Styles
@@ -94,11 +93,11 @@ public final class AircraftTableController {
      * Creates the columns of the table
      */
     private void createColumns() {
-        longAndLatFormater.setMaximumFractionDigits(4);
-        longAndLatFormater.setMinimumFractionDigits(4);
+        longAndLatFormatter.setMaximumFractionDigits(4);
+        longAndLatFormatter.setMinimumFractionDigits(4);
 
-        altAndVitFormater.setMaximumFractionDigits(0);
-        altAndVitFormater.setMinimumFractionDigits(0);
+        altAndVitFormatter.setMaximumFractionDigits(0);
+        altAndVitFormatter.setMinimumFractionDigits(0);
 
         // Literal columns
         TableColumn<ObservableAircraftState, String> icaoCol = new TableColumn<>("OACI");
@@ -152,7 +151,7 @@ public final class AircraftTableController {
         longitudeCol.getStyleClass().add("numeric");
         columnComparator(longitudeCol);
         longitudeCol.setCellValueFactory(f -> f.getValue().positionProperty().map(
-                pos -> longAndLatFormater.format(Units.convert(pos.longitude(), Units.Angle.RADIAN, Units.Angle.DEGREE))
+                pos -> longAndLatFormatter.format(Units.convert(pos.longitude(), Units.Angle.RADIAN, Units.Angle.DEGREE))
         ));
 
         TableColumn<ObservableAircraftState, String> latitudeCol = new TableColumn<>("Latitude(°)");
@@ -160,7 +159,7 @@ public final class AircraftTableController {
         latitudeCol.getStyleClass().add("numeric");
         columnComparator(latitudeCol);
         latitudeCol.setCellValueFactory(f -> f.getValue().positionProperty().map(
-                pos -> longAndLatFormater.format(Units.convert(pos.latitude(), Units.Angle.RADIAN, Units.Angle.DEGREE))
+                pos -> longAndLatFormatter.format(Units.convert(pos.latitude(), Units.Angle.RADIAN, Units.Angle.DEGREE))
         ));
 
 
@@ -168,7 +167,7 @@ public final class AircraftTableController {
         altitudeCol.setPrefWidth(85);
         altitudeCol.getStyleClass().add("numeric");
         columnComparator(altitudeCol);
-        altitudeCol.setCellValueFactory(f -> f.getValue().altitudeProperty().map(altAndVitFormater::format));
+        altitudeCol.setCellValueFactory(f -> f.getValue().altitudeProperty().map(altAndVitFormatter::format));
 
 
         TableColumn<ObservableAircraftState, String> speedCol = new TableColumn<>("Vitesse (km/h)");
@@ -176,7 +175,7 @@ public final class AircraftTableController {
         speedCol.getStyleClass().add("numeric");
         columnComparator(speedCol);
         speedCol.setCellValueFactory(f -> f.getValue().velocityProperty().map(
-                vel -> altAndVitFormater.format(
+                vel -> altAndVitFormatter.format(
                         Units.convert(vel.doubleValue(), Units.Speed.METER_PER_SECOND, Units.Speed.KILOMETER_PER_HOUR)
                 )
         ));
@@ -207,8 +206,8 @@ public final class AircraftTableController {
             else {
                 try {
                     return Double.compare(
-                            longAndLatFormater.parse(s1).doubleValue(),
-                            longAndLatFormater.parse(s2).doubleValue()
+                            longAndLatFormatter.parse(s1).doubleValue(),
+                            longAndLatFormatter.parse(s2).doubleValue()
                     );
                 } catch (ParseException e) {
                     throw new Error(e);
